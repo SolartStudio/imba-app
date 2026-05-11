@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IMBA</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --blue:#1877F2; --blue-dark:#0D65D9; --blue-light:#E7F0FD; --blue-mid:#4A90D9;
+  --bg:#F0F2F5; --white:#fff; --text:#1C1E21; --muted:#65676B;
+  --border:#E4E6EB; --green:#31A24C; --green-bg:#E6F4EA;
+  --red:#D93025; --red-bg:#FCE8E6; --amber:#F59E0B; --amber-bg:#FEF3E2;
+  --shadow:0 1px 4px rgba(0,0,0,0.1);
+  --font:'Manrope',sans-serif;
+}
+body { font-family:var(--font); background:var(--bg); height:100vh; overflow:hidden; color:var(--text); }
+
+/* SCREENS */
+.screen { display:none; flex-direction:column; height:100vh; position:absolute; width:100%; top:0; left:0; }
+.screen.active { display:flex; }
+
+/* HEADER */
+.header {
+  background:var(--white); padding:12px 16px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--border); flex-shrink:0;
+  position:relative; z-index:10;
+}
+.header-avatar {
+  width:40px; height:40px; background:var(--blue);
+  border-radius:50%; display:flex; align-items:center;
+  justify-content:center; font-size:18px; flex-shrink:0;
+}
+.header-info { flex:1; }
+.header-name { font-size:15px; font-weight:700; }
+.header-sub { font-size:12px; color:var(--green); font-weight:600; }
+.header-sub.gray { color:var(--muted); }
+.icon-btn {
+  width:36px; height:36px; background:var(--bg);
+  border:none; border-radius:50%; display:flex;
+  align-items:center; justify-content:center;
+  cursor:pointer; font-size:17px; color:var(--muted);
+  transition:background .15s; flex-shrink:0;
+}
+.icon-btn:active { background:var(--border); }
+
+/* SCROLLABLE BODY */
+.body { flex:1; overflow-y:auto; background:var(--bg); }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  background:var(--white); border-top:1px solid var(--border);
+  display:flex; padding:8px 0 max(env(safe-area-inset-bottom),8px);
+  flex-shrink:0;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; gap:3px; cursor:pointer; padding:2px;
+}
+.nav-icon { font-size:21px; line-height:1; }
+.nav-label { font-size:10px; font-weight:600; color:var(--muted); }
+.nav-item.active .nav-label { color:var(--blue); }
+
+/* ═══════════════ CHAT ═══════════════ */
+#chatScreen { background:var(--bg); }
+
+.messages {
+  flex:1; overflow-y:auto; padding:12px 14px;
+  display:flex; flex-direction:column; gap:3px;
+}
+
+.date-chip {
+  align-self:center; background:rgba(0,0,0,.06);
+  padding:3px 12px; border-radius:10px;
+  font-size:11px; color:var(--muted); margin:6px 0;
+}
+
+.msg-wrap { display:flex; flex-direction:column; max-width:82%; animation:pop .25s ease; }
+.msg-wrap.out { align-self:flex-end; align-items:flex-end; }
+.msg-wrap.in  { align-self:flex-start; align-items:flex-start; }
+
+.bubble {
+  padding:10px 14px; border-radius:18px;
+  font-size:14px; line-height:1.55; word-break:break-word;
+}
+.out .bubble { background:var(--blue); color:#fff; border-bottom-right-radius:4px; }
+.in .bubble  { background:var(--white); color:var(--text); border-bottom-left-radius:4px; box-shadow:var(--shadow); }
+
+.msg-time { font-size:11px; color:var(--muted); padding:2px 4px; }
+
+.typing-bubble { display:flex; gap:5px; align-items:center; padding:12px 16px; }
+.t-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); animation:tdot 1.2s infinite; }
+.t-dot:nth-child(2) { animation-delay:.2s; }
+.t-dot:nth-child(3) { animation-delay:.4s; }
+@keyframes tdot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+/* File preview strip */
+.file-strip {
+  display:none; background:var(--white);
+  border-top:1px solid var(--border);
+  padding:10px 14px; align-items:center; gap:10px;
+}
+.file-strip.show { display:flex; }
+.fstrip-icon { font-size:24px; }
+.fstrip-info { flex:1; }
+.fstrip-name { font-size:13px; font-weight:700; }
+.fstrip-size { font-size:11px; color:var(--muted); }
+.fstrip-rm { width:28px;height:28px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center; }
+
+/* Quick questions */
+.quick-bar {
+  background:var(--white); padding:9px 12px;
+  display:flex; gap:7px; overflow-x:auto;
+  border-top:1px solid var(--border); flex-shrink:0;
+  scrollbar-width:none;
+}
+.quick-bar::-webkit-scrollbar { display:none; }
+.quick-btn {
+  white-space:nowrap; padding:7px 14px; border-radius:20px;
+  border:1.5px solid var(--blue); background:transparent;
+  color:var(--blue); font-size:13px; font-weight:600;
+  cursor:pointer; font-family:var(--font); flex-shrink:0;
+  transition:all .15s;
+}
+.quick-btn:active { background:var(--blue); color:#fff; }
+
+/* Input row */
+.input-row {
+  background:var(--white); padding:9px 12px;
+  display:flex; align-items:flex-end; gap:8px;
+  border-top:1px solid var(--border); flex-shrink:0;
+}
+.attach-btn { width:38px;height:38px;background:var(--bg);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:19px;flex-shrink:0; }
+.attach-btn:active { background:var(--border); }
+.input-wrap { flex:1;background:var(--bg);border-radius:22px;padding:8px 14px;min-height:38px;display:flex;align-items:center; }
+.msg-ta { border:none;background:transparent;outline:none;font-size:15px;font-family:var(--font);color:var(--text);width:100%;resize:none;max-height:90px;line-height:1.4; }
+.msg-ta::placeholder { color:var(--muted); }
+.send-btn { width:38px;height:38px;background:var(--blue);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s; }
+.send-btn:active { background:var(--blue-dark); transform:scale(.9); }
+.send-btn svg { width:17px;height:17px;fill:#fff; }
+#fileInput { display:none; }
+
+/* ═══════════════ ANALYTICS ═══════════════ */
+.period-tabs {
+  display:flex; gap:4px; padding:12px 14px 0;
+  background:var(--white); border-bottom:1px solid var(--border);
+}
+.ptab {
+  flex:1; padding:8px 4px; border:none; background:transparent;
+  font-size:13px; font-weight:700; color:var(--muted);
+  cursor:pointer; font-family:var(--font);
+  border-bottom:2.5px solid transparent; transition:all .2s;
+}
+.ptab.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+.analytics-body { padding:14px; display:flex; flex-direction:column; gap:12px; }
+
+.card {
+  background:var(--white); border-radius:14px;
+  padding:16px; box-shadow:var(--shadow);
+}
+.card-label { font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px; }
+.card-value { font-size:30px;font-weight:800;color:var(--text);line-height:1; }
+.card-row { display:flex;align-items:flex-end;justify-content:space-between; }
+
+.badge { font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px; }
+.badge.up   { background:var(--green-bg);color:var(--green); }
+.badge.down { background:var(--red-bg);color:var(--red); }
+.badge.flat { background:var(--bg);color:var(--muted); }
+
+.mini-chart { display:flex;align-items:flex-end;gap:4px;height:44px;margin-top:14px; }
+.mbar { flex:1;border-radius:5px 5px 0 0;background:var(--blue-light);transition:background .2s; }
+.mbar.hi { background:var(--blue); }
+
+.tabs-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.tab-card { background:var(--white);border-radius:14px;padding:14px;box-shadow:var(--shadow); }
+.tab-card-label { font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px; }
+.tab-card-value { font-size:22px;font-weight:800;color:var(--text); }
+.tab-card-sub { font-size:11px;color:var(--muted);margin-top:2px; }
+
+/* Guests chart */
+.guests-card { background:var(--white);border-radius:14px;padding:16px;box-shadow:var(--shadow); }
+.guests-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+.guests-title { font-size:14px;font-weight:700; }
+.guests-tabs { display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:8px; }
+.gtab { padding:5px 10px;border:none;border-radius:6px;background:transparent;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s; }
+.gtab.active { background:var(--white);color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.1); }
+
+.bar-chart { display:flex;align-items:flex-end;gap:6px;height:80px;position:relative; }
+.bc-bar-wrap { flex:1;display:flex;flex-direction:column;align-items:center;gap:4px; }
+.bc-bar { width:100%;border-radius:5px 5px 0 0;background:var(--blue-light);transition:height .3s; }
+.bc-bar.peak { background:var(--blue); }
+.bc-label { font-size:10px;color:var(--muted);font-weight:600; }
+
+/* ═══════════════ FILES ═══════════════ */
+.search-bar {
+  background:var(--white); padding:10px 14px;
+  border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.search-input-wrap {
+  background:var(--bg); border-radius:22px;
+  padding:9px 14px; display:flex; align-items:center; gap:8px;
+}
+.search-icon { font-size:15px; color:var(--muted); }
+.search-input { border:none;background:transparent;outline:none;font-size:14px;font-family:var(--font);color:var(--text);flex:1; }
+.search-input::placeholder { color:var(--muted); }
+
+.files-list { padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
+
+.file-item {
+  background:var(--white); border-radius:12px;
+  padding:12px 14px; display:flex; align-items:center; gap:12px;
+  box-shadow:var(--shadow); cursor:pointer; transition:background .15s;
+}
+.file-item:active { background:var(--blue-light); }
+.file-item-icon { font-size:28px; flex-shrink:0; }
+.file-item-info { flex:1; }
+.file-item-name { font-size:14px;font-weight:600; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px; }
+.file-item-meta { font-size:12px;color:var(--muted);margin-top:2px; }
+.file-item-size { font-size:12px;color:var(--muted);font-weight:600; }
+
+.empty-state { text-align:center;padding:60px 20px;color:var(--muted); }
+.empty-icon { font-size:48px;margin-bottom:12px; }
+.empty-text { font-size:14px;font-weight:600; }
+
+/* ═══════════════ SALARIES ═══════════════ */
+.dept-list { padding:12px 14px;display:flex;flex-direction:column;gap:8px; }
+.dept-item {
+  background:var(--white);border-radius:14px;padding:16px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:var(--shadow);cursor:pointer;transition:background .15s;
+}
+.dept-item:active { background:var(--blue-light); }
+.dept-ico { width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0; }
+.dept-info { flex:1; }
+.dept-name { font-size:15px;font-weight:700; }
+.dept-count { font-size:12px;color:var(--muted);margin-top:2px; }
+.dept-arrow { font-size:18px;color:var(--muted); }
+
+/* Employees list */
+#empScreen .header { cursor:pointer; }
+.emp-list { padding:12px 14px;display:flex;flex-direction:column;gap:8px; }
+.emp-card { background:var(--white);border-radius:14px;padding:14px;box-shadow:var(--shadow); }
+.emp-header { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
+.emp-avatar { width:40px;height:40px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
+.emp-name { font-size:14px;font-weight:700;flex:1; }
+.emp-status { font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px; }
+.emp-status.pending { background:var(--amber-bg);color:var(--amber); }
+.emp-status.paid { background:var(--green-bg);color:var(--green); }
+.emp-details { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px; }
+.emp-det { background:var(--bg);border-radius:10px;padding:10px; }
+.emp-det-label { font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px; }
+.emp-det-value { font-size:15px;font-weight:700; }
+.emp-actions { display:flex;gap:8px; }
+.btn-primary { flex:1;padding:10px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s; }
+.btn-primary:active { background:var(--blue-dark); transform:scale(.97); }
+.btn-secondary { flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s; }
+.btn-secondary:active { background:var(--bg); }
+.btn-success { flex:1;padding:10px;border:none;border-radius:10px;background:var(--green);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font); }
+
+/* ANIMATIONS */
+@keyframes pop { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.slide-in { animation:slideIn .25s ease; }
+</style>
+</head>
+<body>
+
+<!-- ═══ CHAT ═══ -->
+<div class="screen active" id="chatScreen">
+  <div class="header">
+    <div class="header-avatar">🤖</div>
+    <div class="header-info">
+      <div class="header-name">IMBA Аналитик</div>
+      <div class="header-sub">● онлайн</div>
+    </div>
+    <button class="icon-btn">⋯</button>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="date-chip">Сегодня</div>
+    <div class="msg-wrap in">
+      <div class="bubble">Привет! Я IMBA — ваш бизнес-аналитик 🤖<br>Задайте вопрос или прикрепите файл для анализа.</div>
+      <div class="msg-time">сейчас</div>
+    </div>
+  </div>
+
+  <div class="file-strip" id="fileStrip">
+    <div class="fstrip-icon" id="fStripIcon">📄</div>
+    <div class="fstrip-info">
+      <div class="fstrip-name" id="fStripName">файл</div>
+      <div class="fstrip-size" id="fStripSize">—</div>
+    </div>
+    <button class="fstrip-rm" onclick="removeFile()">✕</button>
+  </div>
+
+  <div class="quick-bar" id="quickBar"></div>
+
+  <div class="input-row">
+    <button class="attach-btn" onclick="document.getElementById('fileInput').click()">📎</button>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.pdf,.doc,.docx" onchange="handleFile(this)">
+    <div class="input-wrap">
+      <textarea class="msg-ta" id="msgInput" placeholder="Сообщение..." rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    </div>
+    <button class="send-btn" onclick="sendMsg()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+  <div class="bottom-nav" id="nav1">
+    <div class="nav-item active" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label" style="color:var(--blue)">Чат</div></div>
+    <div class="nav-item" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label">Аналитика</div></div>
+    <div class="nav-item" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label">Файлы</div></div>
+    <div class="nav-item" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label">Зарплаты</div></div>
+  </div>
+</div>
+
+<!-- ═══ ANALYTICS ═══ -->
+<div class="screen" id="analyticsScreen">
+  <div class="header">
+    <div class="header-avatar" style="background:#E7F0FD;color:var(--blue)">📊</div>
+    <div class="header-info">
+      <div class="header-name">Аналитика</div>
+      <div class="header-sub gray">Обновлено сейчас</div>
+    </div>
+  </div>
+
+  <div style="background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;">
+    <div class="period-tabs">
+      <button class="ptab active" onclick="setPeriod(this,'День')">День</button>
+      <button class="ptab" onclick="setPeriod(this,'Неделя')">Неделя</button>
+      <button class="ptab" onclick="setPeriod(this,'Месяц')">Месяц</button>
+      <button class="ptab" onclick="setPeriod(this,'Год')">Год</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="analytics-body">
+
+      <div class="tabs-grid">
+        <div class="tab-card">
+          <div class="tab-card-label">Списания</div>
+          <div class="tab-card-value">₽ —</div>
+          <div class="tab-card-sub">фудкост</div>
+        </div>
+        <div class="tab-card">
+          <div class="tab-card-label">Бани</div>
+          <div class="tab-card-value">— шт</div>
+          <div class="tab-card-sub">компаний</div>
+        </div>
+        <div class="tab-card">
+          <div class="tab-card-label">Отмены</div>
+          <div class="tab-card-value">— шт</div>
+          <div class="tab-card-sub">прчека</div>
+        </div>
+        <div class="tab-card">
+          <div class="tab-card-label">Ср. чек</div>
+          <div class="tab-card-value">₽ —</div>
+          <div class="tab-card-sub">на гостя</div>
+        </div>
+      </div>
+
+      <!-- Guests chart -->
+      <div class="guests-card">
+        <div class="guests-header">
+          <div class="guests-title">Количество гостей</div>
+          <div class="guests-tabs">
+            <button class="gtab active" onclick="setGuestTab(this,'вчера')">Вчера</button>
+            <button class="gtab" onclick="setGuestTab(this,'неделя')">Нед</button>
+            <button class="gtab" onclick="setGuestTab(this,'месяц')">Мес</button>
+          </div>
+        </div>
+        <div class="bar-chart" id="guestChart"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label">Чат</div></div>
+    <div class="nav-item active" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label" style="color:var(--blue)">Аналитика</div></div>
+    <div class="nav-item" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label">Файлы</div></div>
+    <div class="nav-item" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label">Зарплаты</div></div>
+  </div>
+</div>
+
+<!-- ═══ FILES ═══ -->
+<div class="screen" id="filesScreen">
+  <div class="header">
+    <div class="header-avatar" style="background:#E7F0FD;color:var(--blue)">📁</div>
+    <div class="header-info">
+      <div class="header-name">Файлы</div>
+      <div class="header-sub gray" id="fileCount">0 файлов</div>
+    </div>
+  </div>
+
+  <div class="search-bar" style="flex-shrink:0;">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" placeholder="Поиск по названию..." id="searchInput" oninput="filterFiles()">
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="files-list" id="filesList"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label">Чат</div></div>
+    <div class="nav-item" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label">Аналитика</div></div>
+    <div class="nav-item active" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label" style="color:var(--blue)">Файлы</div></div>
+    <div class="nav-item" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label">Зарплаты</div></div>
+  </div>
+</div>
+
+<!-- ═══ SALARIES (departments) ═══ -->
+<div class="screen" id="salariesScreen">
+  <div class="header">
+    <div class="header-avatar" style="background:#E7F0FD;color:var(--blue)">💳</div>
+    <div class="header-info">
+      <div class="header-name">Зарплаты</div>
+      <div class="header-sub gray">Подразделения</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="dept-list" id="deptList"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label">Чат</div></div>
+    <div class="nav-item" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label">Аналитика</div></div>
+    <div class="nav-item" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label">Файлы</div></div>
+    <div class="nav-item active" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label" style="color:var(--blue)">Зарплаты</div></div>
+  </div>
+</div>
+
+<!-- ═══ EMPLOYEES ═══ -->
+<div class="screen" id="empScreen">
+  <div class="header">
+    <button class="icon-btn" onclick="goTo('salariesScreen',3)" style="background:transparent;">←</button>
+    <div class="header-info">
+      <div class="header-name" id="empDeptName">Сотрудники</div>
+      <div class="header-sub gray" id="empDeptCount">—</div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="emp-list" id="empList"></div>
+  </div>
+</div>
+
+<script>
+// ═══ STATE ═══
+const state = {
+  files: JSON.parse(localStorage.getItem('imba_files') || '[]'),
+  quickQuestions: JSON.parse(localStorage.getItem('imba_quick') || 'null'),
+  questionFreq: JSON.parse(localStorage.getItem('imba_freq') || '{}'),
+  salaries: JSON.parse(localStorage.getItem('imba_salaries') || 'null'),
+};
+
+const DEFAULT_QUICK = ['Выручка за вчера','Топ процедур за вчера','Топ блюд за вчера'];
+
+const DEPARTMENTS = [
+  { id:'massage', name:'Массажисты', icon:'💆', color:'#E7F0FD', count:6 },
+  { id:'parmaster', name:'Пармастера', icon:'🧖', color:'#E6F4EA', count:4 },
+  { id:'cleaning', name:'Технички', icon:'🧹', color:'#FEF3E2', count:5 },
+  { id:'waiters', name:'Официанты', icon:'🍽️', color:'#F3E8FF', count:7 },
+];
+
+const EMP_DATA = {
+  massage:  ['Анна Козлова','Дмитрий Орлов','Екатерина Лебедева','Марина Фролова','Сергей Тихонов','Ольга Белова'],
+  parmaster:['Иван Громов','Павел Зайцев','Николай Медведев','Алексей Рябов'],
+  cleaning: ['Тамара Ильина','Валентина Власова','Людмила Крылова','Зинаида Панова','Надежда Куликова'],
+  waiters:  ['Юлия Морозова','Виктория Соколова','Артём Кузнецов','Наталья Попова','Роман Воробьёв','Светлана Новикова','Андрей Голубев'],
+};
+
+const FILE_ICONS = {xlsx:'📊',xls:'📊',csv:'📋',pdf:'📕',doc:'📝',docx:'📝'};
+const GUEST_DATA = {
+  вчера:  [{l:'8',v:45},{l:'10',v:80},{l:'12',v:120},{l:'14',v:95},{l:'16',v:110},{l:'18',v:140},{l:'20',v:100}],
+  неделя: [{l:'Пн',v:320},{l:'Вт',v:280},{l:'Ср',v:190},{l:'Чт',v:350},{l:'Пт',v:420},{l:'Сб',v:380},{l:'Вс',v:300}],
+  месяц:  [{l:'1н',v:1200},{l:'2н',v:980},{l:'3н',v:1400},{l:'4н',v:1600}],
+};
+
+// ═══ NAVIGATION ═══
+function goTo(id, idx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'filesScreen') renderFiles();
+  if (id === 'salariesScreen') renderDepts();
+  if (id === 'analyticsScreen') renderGuestChart('вчера');
+}
+
+// ═══ QUICK QUESTIONS ═══
+function getQuickQuestions() {
+  const freq = state.questionFreq;
+  const sorted = Object.keys(freq).sort((a,b) => freq[b]-freq[a]);
+  if (sorted.length >= 3) {
+    const top3 = sorted.slice(0,3);
+    // Only replace if significantly more frequent
+    const totalAsked = Object.values(freq).reduce((a,b)=>a+b,0);
+    if (totalAsked >= 9) return top3;
+  }
+  return DEFAULT_QUICK;
+}
+
+function renderQuickBar() {
+  const bar = document.getElementById('quickBar');
+  const questions = getQuickQuestions();
+  bar.innerHTML = questions.map(q =>
+    `<button class="quick-btn" onclick="sendQuick('${q}')">${q}</button>`
+  ).join('');
+}
+
+function trackQuestion(q) {
+  state.questionFreq[q] = (state.questionFreq[q] || 0) + 1;
+  localStorage.setItem('imba_freq', JSON.stringify(state.questionFreq));
+  renderQuickBar();
+}
+
+// ═══ CHAT ═══
+let selectedFile = null;
+
+function now() {
+  return new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+}
+
+function addMessage(text, type) {
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  wrap.className = `msg-wrap ${type}`;
+  wrap.innerHTML = `<div class="bubble">${text}</div><div class="msg-time">${now()}</div>`;
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const t = document.createElement('div');
+  t.className = 'msg-wrap in'; t.id = 'typing';
+  t.innerHTML = `<div class="bubble"><div class="typing-bubble"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div></div>`;
+  msgs.appendChild(t);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function sendMsg() {
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  const hasFile = selectedFile !== null;
+  if (!text && !hasFile) return;
+
+  let displayText = text;
+  if (hasFile) {
+    displayText = (text ? text + '\n' : '') + `📎 ${selectedFile.name}`;
+    saveFile(selectedFile);
+    removeFile();
+  }
+
+  addMessage(displayText.replace(/\n/g,'<br>'), 'out');
+  if (text) trackQuestion(text);
+  input.value = ''; input.style.height = 'auto';
+
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addMessage('Анализирую данные... Подключите iiko для получения актуальной информации.', 'in');
+  }, 1400);
+}
+
+function sendQuick(q) {
+  document.getElementById('msgInput').value = q;
+  sendMsg();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+}
+
+// ═══ FILES ═══
+function handleFile(input) {
+  if (!input.files.length) return;
+  const f = input.files[0];
+  selectedFile = f;
+  const ext = f.name.split('.').pop().toLowerCase();
+  document.getElementById('fStripIcon').textContent = FILE_ICONS[ext] || '📄';
+  document.getElementById('fStripName').textContent = f.name;
+  document.getElementById('fStripSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+  document.getElementById('fileStrip').classList.add('show');
+}
+
+function removeFile() {
+  selectedFile = null;
+  document.getElementById('fileStrip').classList.remove('show');
+  document.getElementById('fileInput').value = '';
+}
+
+function saveFile(f) {
+  const ext = f.name.split('.').pop().toLowerCase();
+  const entry = {
+    name: f.name,
+    size: (f.size/1024).toFixed(1) + ' KB',
+    ext: ext,
+    date: new Date().toLocaleDateString('ru',{day:'2-digit',month:'short',year:'numeric'}),
+    icon: FILE_ICONS[ext] || '📄',
+  };
+  state.files.unshift(entry);
+  localStorage.setItem('imba_files', JSON.stringify(state.files));
+}
+
+function renderFiles() {
+  const list = document.getElementById('filesList');
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const filtered = state.files.filter(f => f.name.toLowerCase().includes(search));
+  document.getElementById('fileCount').textContent = state.files.length + ' файлов';
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">${search ? 'Ничего не найдено' : 'Файлы появятся здесь после отправки в чат'}</div></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((f,i) => `
+    <div class="file-item slide-in" style="animation-delay:${i*0.04}s">
+      <div class="file-item-icon">${f.icon}</div>
+      <div class="file-item-info">
+        <div class="file-item-name">${f.name}</div>
+        <div class="file-item-meta">${f.date}</div>
+      </div>
+      <div class="file-item-size">${f.size}</div>
+    </div>
+  `).join('');
+}
+
+function filterFiles() { renderFiles(); }
+
+// ═══ SALARIES ═══
+function getSalaries() {
+  if (!state.salaries) {
+    const s = {};
+    DEPARTMENTS.forEach(d => {
+      s[d.id] = {};
+      EMP_DATA[d.id].forEach(name => {
+        s[d.id][name] = { paidDate: null, accrued: Math.floor(Math.random()*15000+8000) };
+      });
+    });
+    state.salaries = s;
+    localStorage.setItem('imba_salaries', JSON.stringify(s));
+  }
+  return state.salaries;
+}
+
+function renderDepts() {
+  const list = document.getElementById('deptList');
+  list.innerHTML = DEPARTMENTS.map((d,i) => `
+    <div class="dept-item slide-in" style="animation-delay:${i*0.06}s" onclick="openDept('${d.id}','${d.name}')">
+      <div class="dept-ico" style="background:${d.color}">${d.icon}</div>
+      <div class="dept-info">
+        <div class="dept-name">${d.name}</div>
+        <div class="dept-count">${EMP_DATA[d.id].length} сотрудников</div>
+      </div>
+      <div class="dept-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function openDept(id, name) {
+  document.getElementById('empDeptName').textContent = name;
+  document.getElementById('empDeptCount').textContent = EMP_DATA[id].length + ' сотрудников';
+  renderEmployees(id);
+  goTo('empScreen', 3);
+}
+
+function renderEmployees(deptId) {
+  const sal = getSalaries();
+  const emps = EMP_DATA[deptId];
+  const list = document.getElementById('empList');
+
+  list.innerHTML = emps.map((name, i) => {
+    const data = sal[deptId][name];
+    const isPaid = data.paidDate !== null;
+    const sinceText = isPaid
+      ? `С ${new Date(data.paidDate).toLocaleDateString('ru',{day:'2-digit',month:'short'})}`
+      : 'С начала периода';
+    const accrued = calcAccrued(data);
+
+    return `
+    <div class="emp-card slide-in" style="animation-delay:${i*0.05}s" id="emp_${deptId}_${i}">
+      <div class="emp-header">
+        <div class="emp-avatar">👤</div>
+        <div class="emp-name">${name}</div>
+        <div class="emp-status ${isPaid ? 'paid' : 'pending'}">${isPaid ? 'Выдана' : 'К выдаче'}</div>
+      </div>
+      <div class="emp-details">
+        <div class="emp-det">
+          <div class="emp-det-label">Начислено</div>
+          <div class="emp-det-value" style="color:var(--blue)">₽ ${accrued.toLocaleString()}</div>
+        </div>
+        <div class="emp-det">
+          <div class="emp-det-label">Период</div>
+          <div class="emp-det-value" style="font-size:13px">${sinceText}</div>
+        </div>
+      </div>
+      <div class="emp-actions">
+        <button class="btn-secondary" onclick="calcSalary('${deptId}',${i},'${name}')">Рассчитать</button>
+        <button class="${isPaid ? 'btn-secondary' : 'btn-success'}" onclick="markPaid('${deptId}',${i},'${name}')">
+          ${isPaid ? '✓ Выдана' : 'Выдать'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function calcAccrued(data) {
+  const base = data.accrued;
+  if (!data.paidDate) return base;
+  const days = Math.floor((Date.now() - new Date(data.paidDate)) / 86400000);
+  return Math.floor((base / 30) * days);
+}
+
+function calcSalary(deptId, idx, name) {
+  const sal = getSalaries();
+  sal[deptId][name].accrued = Math.floor(Math.random()*20000+10000);
+  state.salaries = sal;
+  localStorage.setItem('imba_salaries', JSON.stringify(sal));
+  renderEmployees(deptId);
+}
+
+function markPaid(deptId, idx, name) {
+  const sal = getSalaries();
+  const emp = sal[deptId][name];
+  if (emp.paidDate) {
+    // Already paid — reset
+    emp.paidDate = null;
+    emp.accrued = 0;
+  } else {
+    emp.paidDate = new Date().toISOString();
+    emp.accrued = calcAccrued(emp);
+  }
+  state.salaries = sal;
+  localStorage.setItem('imba_salaries', JSON.stringify(sal));
+  renderEmployees(deptId);
+}
+
+// ═══ ANALYTICS ═══
+function setPeriod(el, period) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setGuestTab(el, key) {
+  document.querySelectorAll('.gtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderGuestChart(key);
+}
+
+function renderGuestChart(key) {
+  const data = GUEST_DATA[key];
+  const max = Math.max(...data.map(d=>d.v));
+  const chart = document.getElementById('guestChart');
+  chart.innerHTML = data.map((d,i) => {
+    const pct = Math.round((d.v/max)*100);
+    const isPeak = d.v === max;
+    return `<div class="bc-bar-wrap">
+      <div class="bc-bar ${isPeak?'peak':''}" style="height:${pct}%"></div>
+      <div class="bc-label">${d.l}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ INIT ═══
+renderQuickBar();
+renderFiles();
+renderDepts();
+renderGuestChart('вчера');
+</script>
+</body>
+</html>
