@@ -6,7 +6,9 @@
 <title>IMBA</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* ПРАВКА 2: user-select:none везде кроме .bubble */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.bubble{user-select:text;-webkit-user-select:text}
 :root{
   --blue:#1877F2;--blue-dark:#0D65D9;--blue-light:#E7F0FD;
   --bg:#F0F2F5;--white:#fff;--text:#1C1E21;--muted:#65676B;
@@ -60,42 +62,47 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 .attbtn{width:38px;height:38px;background:var(--bg);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:19px;flex-shrink:0}
 .attbtn:active{background:var(--border)}
 .iwrap{flex:1;background:var(--bg);border-radius:22px;padding:8px 14px;min-height:38px;display:flex;align-items:center}
-.mta{border:none;background:transparent;outline:none;font-size:15px;font-family:var(--font);color:var(--text);width:100%;resize:none;max-height:90px;line-height:1.4}
+.mta{border:none;background:transparent;outline:none;font-size:15px;font-family:var(--font);color:var(--text);width:100%;resize:none;max-height:90px;line-height:1.4;user-select:text;-webkit-user-select:text}
 .mta::placeholder{color:var(--muted)}
 .sndbtn{width:38px;height:38px;background:var(--blue);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
 .sndbtn:active{background:var(--blue-dark);transform:scale(.9)}
 .sndbtn svg{width:17px;height:17px;fill:#fff}
 #fileInput{display:none}
 
-/* ANALYTICS */
+/* ПРАВКА 4: Summary bar — один красивый блок */
 .summary-bar{background:var(--white);padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
-.summary-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.summary-row::-webkit-scrollbar{display:none}
-.sum-chip{flex-shrink:0;background:var(--bg);border-radius:12px;padding:8px 12px;min-width:110px}
-.sum-chip.alert-up{background:var(--green-bg)}
-.sum-chip.alert-down{background:var(--red-bg)}
-.sum-chip.alert-warn{background:var(--amber-bg)}
-.sum-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
-.sum-val{font-size:14px;font-weight:800;margin-top:2px}
-.sum-chip.alert-up .sum-label,.sum-chip.alert-up .sum-val{color:var(--green)}
-.sum-chip.alert-down .sum-label,.sum-chip.alert-down .sum-val{color:var(--red)}
-.sum-chip.alert-warn .sum-label,.sum-chip.alert-warn .sum-val{color:var(--amber)}
+.sum-block{background:var(--bg);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.sum-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.sum-items{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.sum-items::-webkit-scrollbar{display:none}
+.sum-item{flex-shrink:0;display:flex;align-items:center;gap:8px;background:var(--white);border-radius:12px;padding:8px 12px;min-width:130px;box-shadow:var(--shadow)}
+.sum-item-ico{font-size:18px}
+.sum-item-info{flex:1}
+.sum-item-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.sum-item-val{font-size:14px;font-weight:800;margin-top:1px}
+.sum-item.up .sum-item-val{color:var(--green)}
+.sum-item.down .sum-item-val{color:var(--red)}
+.sum-item.warn .sum-item-val{color:var(--amber)}
+.sum-item.up{border-left:3px solid var(--green)}
+.sum-item.down{border-left:3px solid var(--red)}
+.sum-item.warn{border-left:3px solid var(--amber)}
+
 .ptabs{display:flex;gap:4px;padding:10px 14px 0;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
 .ptab{flex:1;padding:7px 4px;border:none;background:transparent;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--font);border-bottom:2.5px solid transparent;transition:all .2s}
 .ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-/* Widget grid */
+/* ПРАВКА 3: Виджеты и графики в одной сетке */
 .wgrid{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
-.wcard{background:var(--white);border-radius:16px;padding:14px;box-shadow:var(--shadow2);position:relative;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;user-select:none;transition:transform .1s}
+.wcard{background:var(--white);border-radius:16px;padding:14px;box-shadow:var(--shadow2);position:relative;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .1s}
 .wcard.pressing{transform:scale(.97);background:#f8f8f8}
 .wcard-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .wcard-val{font-size:22px;font-weight:800;color:var(--text);line-height:1.1}
-.wcard-sub{font-size:11px;color:var(--muted);margin-top:4px}
 .wcard-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:6px}
 .wcard-badge.up{background:var(--green-bg);color:var(--green)}
 .wcard-badge.down{background:var(--red-bg);color:var(--red)}
 .wcard-badge.flat{background:var(--bg);color:var(--muted)}
-.wcard.full{grid-column:1/-1}
+/* Графики тоже в обычной ячейке, не full width */
+.wcard.chart-card{grid-column:1/-1}
 .mini-bars{display:flex;align-items:flex-end;gap:3px;height:60px;margin-top:10px}
 .mb{flex:1;border-radius:3px 3px 0 0;background:var(--blue-light)}
 .mb.hi{background:var(--blue)}
@@ -105,18 +112,17 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 .top-rank{width:18px;height:18px;border-radius:50%;background:var(--blue-light);color:var(--blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .top-name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top-val{font-weight:700;color:var(--blue);font-size:11px}
+/* Кнопка + всегда одна, без слова График */
 .add-wcard{background:transparent;border:2px dashed var(--border);border-radius:16px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .2s}
 .add-wcard:active{background:var(--blue-light);border-color:var(--blue)}
 .add-wcard-icon{font-size:28px;color:var(--muted)}
-.add-wcard-lbl{font-size:12px;font-weight:600;color:var(--muted)}
-.add-wcard.full{grid-column:1/-1}
 .hold-hint{font-size:10px;color:var(--muted);text-align:center;padding:4px 12px 0;grid-column:1/-1}
 
 /* FILES */
 .sbar{background:var(--white);padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
 .siwrap{background:var(--bg);border-radius:22px;padding:9px 14px;display:flex;align-items:center;gap:8px}
 .sico{font-size:15px;color:var(--muted)}
-.sinp{border:none;background:transparent;outline:none;font-size:14px;font-family:var(--font);color:var(--text);flex:1}
+.sinp{border:none;background:transparent;outline:none;font-size:14px;font-family:var(--font);color:var(--text);flex:1;user-select:text;-webkit-user-select:text}
 .sinp::placeholder{color:var(--muted)}
 .flist{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .fitem{background:var(--white);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer}
@@ -136,7 +142,7 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 .sal-add-btn:active{background:var(--blue-light)}
 .sal-add-ico{width:44px;height:44px;border-radius:12px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .sal-add-txt{font-size:15px;font-weight:700;color:var(--blue)}
-.dept-card{background:var(--white);border-radius:16px;box-shadow:var(--shadow2);overflow:hidden;user-select:none;transition:transform .1s}
+.dept-card{background:var(--white);border-radius:16px;box-shadow:var(--shadow2);overflow:hidden;transition:transform .1s}
 .dept-card.pressing{transform:scale(.98);background:#f8f8f8}
 .dept-header{display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer}
 .dept-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
@@ -147,7 +153,7 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 .dept-arrow.open{transform:rotate(90deg)}
 .dept-emps{display:none;border-top:1px solid var(--border)}
 .dept-emps.open{display:block}
-.emp-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);user-select:none;transition:background .1s}
+.emp-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);transition:background .1s}
 .emp-row.pressing{background:var(--red-bg)}
 .emp-av{width:36px;height:36px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .emp-nm{flex:1;font-size:14px;font-weight:600}
@@ -169,7 +175,7 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 .conn-section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
 .conn-card{background:var(--white);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow2);cursor:pointer;transition:all .15s}
 .conn-card:active{transform:scale(.98)}
-.conn-logo{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.conn-logo{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .conn-info{flex:1}
 .conn-nm{font-size:15px;font-weight:700}
 .conn-desc{font-size:12px;color:var(--muted);margin-top:2px}
@@ -189,7 +195,7 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 .modal-desc{font-size:13px;color:var(--muted);margin-bottom:18px}
 .mfield{margin-bottom:12px}
 .mlbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.4px}
-.minput{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:var(--font);color:var(--text);background:var(--bg);outline:none;transition:border .2s}
+.minput{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:var(--font);color:var(--text);background:var(--bg);outline:none;transition:border .2s;user-select:text;-webkit-user-select:text}
 .minput:focus{border-color:var(--blue);background:var(--white)}
 .mbtn{width:100%;padding:14px;border:none;border-radius:14px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:4px}
 .mbtn:active{background:var(--blue-dark)}
@@ -198,8 +204,6 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 .mcancel{width:100%;padding:12px;border:none;background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:4px}
 .confirm-btns{display:flex;gap:10px;margin-top:8px}
 .confirm-btns .mbtn{flex:1;margin:0}
-
-/* Widget picker */
 .wpick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .wpick-item{background:var(--bg);border-radius:12px;padding:12px;cursor:pointer;border:2px solid transparent;transition:all .15s;display:flex;flex-direction:column;gap:4px}
 .wpick-item:active,.wpick-item.selected{border-color:var(--blue);background:var(--blue-light)}
@@ -226,7 +230,7 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
   <div class="messages" id="messages">
     <div class="dchip">Сегодня</div>
     <div class="mwrap in">
-      <div class="bubble">Привет! Я IMBA — ваш бизнес-аналитик 🤖<br>Задайте вопрос или прикрепите файл для анализа.<br><br>После подключения системы в разделе <b>Подключения</b> — отвечу по вашим реальным данным.</div>
+      <div class="bubble">Привет! Я IMBA — ваш бизнес-аналитик 🤖<br>Задайте вопрос или прикрепите файл для анализа.<br><br>После подключения системы в разделе <b>Подключения</b> — смогу отвечать по вашим реальным данным.</div>
       <div class="mtime">сейчас</div>
     </div>
   </div>
@@ -257,14 +261,32 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
     <div class="hav" style="background:#E7F0FD;color:var(--blue)">📊</div>
     <div class="hinfo"><div class="hname">Аналитика</div><div class="hsub g">Ваш дашборд</div></div>
   </div>
+
+  <!-- ПРАВКА 4: Один красивый блок summary -->
   <div class="summary-bar">
-    <div class="summary-row">
-      <div class="sum-chip alert-up"><div class="sum-label">Выручка</div><div class="sum-val">+12%</div></div>
-      <div class="sum-chip alert-down"><div class="sum-label">Отмены</div><div class="sum-val">↑ 3 шт</div></div>
-      <div class="sum-chip alert-warn"><div class="sum-label">Ср. чек</div><div class="sum-val">−5%</div></div>
-      <div class="sum-chip"><div class="sum-label">AI-вывод</div><div class="sum-val">Пятница 🔥</div></div>
+    <div class="sum-block">
+      <div class="sum-title">по сравнению со вчера</div>
+      <div class="sum-items">
+        <div class="sum-item up">
+          <div class="sum-item-ico">📈</div>
+          <div class="sum-item-info"><div class="sum-item-lbl">Выручка</div><div class="sum-item-val">+12%</div></div>
+        </div>
+        <div class="sum-item down">
+          <div class="sum-item-ico">❌</div>
+          <div class="sum-item-info"><div class="sum-item-lbl">Отмены</div><div class="sum-item-val">↑ 3 шт</div></div>
+        </div>
+        <div class="sum-item warn">
+          <div class="sum-item-ico">🧾</div>
+          <div class="sum-item-info"><div class="sum-item-lbl">Ср. чек</div><div class="sum-item-val">−5%</div></div>
+        </div>
+        <div class="sum-item">
+          <div class="sum-item-ico">🤖</div>
+          <div class="sum-item-info"><div class="sum-item-lbl">AI-вывод</div><div class="sum-item-val">Всё ок</div></div>
+        </div>
+      </div>
     </div>
   </div>
+
   <div class="ptabs">
     <button class="ptab active" onclick="setPeriod(this,'вчера')">Вчера</button>
     <button class="ptab" onclick="setPeriod(this,'неделя')">Неделя</button>
@@ -496,7 +518,6 @@ const DEMO={
 
 let curPeriod='вчера';
 
-// NAV
 function nav(id,el){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -508,7 +529,7 @@ function nav(id,el){
   if(id==='connectionsScreen')renderConns();
 }
 
-// CHAT
+// ПРАВКА 1: Чат работает напрямую, без проверки подключения
 let selFile=null,sending=false;
 const FICONS={xlsx:'📊',xls:'📊',csv:'📋',pdf:'📕',doc:'📝',docx:'📝'};
 const DQUICK=['Выручка сегодня','Топ услуг за неделю','Ср. чек за месяц'];
@@ -524,16 +545,16 @@ function now(){return new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:
 
 function addMsg(text,type){
   const msgs=document.getElementById('messages');
-  const w=document.createElement('div');w.className=`mwrap ${type}`;
+  const w=document.createElement('div');w.className='mwrap '+type;
   const fmt=text.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
-  w.innerHTML=`<div class="bubble">${fmt}</div><div class="mtime">${now()}</div>`;
+  w.innerHTML='<div class="bubble">'+fmt+'</div><div class="mtime">'+now()+'</div>';
   msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight;
 }
 
 function showTyping(){
   const msgs=document.getElementById('messages');
   const t=document.createElement('div');t.className='mwrap in';t.id='typing';
-  t.innerHTML=`<div class="bubble"><div class="tybbl"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  t.innerHTML='<div class="bubble"><div class="tybbl"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>';
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
 }
 function hideTyping(){const t=document.getElementById('typing');if(t)t.remove()}
@@ -553,7 +574,10 @@ async function callBot(text,file){
     hideTyping();
     const reply=data.reply||data.text||data.output||data.message||(Array.isArray(data)?data[0]?.text||data[0]?.output:null)||JSON.stringify(data);
     addMsg(reply,'in');
-  }catch(e){hideTyping();addMsg('⚠️ Ошибка соединения. Попробуйте снова.','in');}
+  }catch(e){
+    hideTyping();
+    addMsg('⚠️ Ошибка соединения. Попробуйте снова.','in');
+  }
   sending=false;
 }
 
@@ -564,7 +588,7 @@ function sendMsg(){
   if(!text&&!hasFile)return;
   sending=true;
   let disp=text;let fileToSend=null;
-  if(hasFile){fileToSend=selFile;disp=(text?text+'\n':'')+`📎 ${selFile.name}`;saveFile(selFile);removeFile();}
+  if(hasFile){fileToSend=selFile;disp=(text?text+'\n':'')+('📎 '+selFile.name);saveFile(selFile);removeFile();}
   addMsg(disp.replace(/\n/g,'<br>'),'out');
   if(text){S.freq[text]=(S.freq[text]||0)+1;localStorage.setItem('imba_freq',JSON.stringify(S.freq));renderQuickBar();}
   inp.value='';inp.style.height='auto';
@@ -584,7 +608,6 @@ function handleFile(inp){
 }
 function removeFile(){selFile=null;document.getElementById('fileStrip').classList.remove('show');document.getElementById('fileInput').value=''}
 
-// FILES
 function saveFile(f){
   const ext=f.name.split('.').pop().toLowerCase();
   S.files.unshift({name:f.name,size:(f.size/1024).toFixed(1)+' KB',ext,date:new Date().toLocaleDateString('ru',{day:'2-digit',month:'short',year:'numeric'}),icon:FICONS[ext]||'📄'});
@@ -594,66 +617,18 @@ function renderFiles(){
   const search=(document.getElementById('searchInput').value||'').toLowerCase();
   const filtered=S.files.filter(f=>f.name.toLowerCase().includes(search));
   document.getElementById('fileCount').textContent=S.files.length+' файлов';
-  document.getElementById('filesList').innerHTML=filtered.length?filtered.map((f,i)=>`
-    <div class="fitem sli" style="animation-delay:${i*.04}s">
-      <div class="fitem-ico">${f.icon}</div>
-      <div class="fitem-inf"><div class="fitem-nm">${f.name}</div><div class="fitem-mt">${f.date}</div></div>
-      <div class="fitem-sz">${f.size}</div>
-    </div>`).join(''):`<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">${search?'Ничего не найдено':'Файлы появятся здесь после отправки в чат'}</div></div>`;
+  document.getElementById('filesList').innerHTML=filtered.length?filtered.map((f,i)=>'<div class="fitem sli" style="animation-delay:'+(i*.04)+'s"><div class="fitem-ico">'+f.icon+'</div><div class="fitem-inf"><div class="fitem-nm">'+f.name+'</div><div class="fitem-mt">'+f.date+'</div></div><div class="fitem-sz">'+f.size+'</div></div>').join(''):'<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">'+(search?'Ничего не найдено':'Файлы появятся здесь после отправки в чат')+'</div></div>';
 }
 function filterFiles(){renderFiles()}
 
-// SALARIES
 function renderSalaries(){
   const body=document.getElementById('salBody');
-  let html=`<button class="sal-add-btn" onclick="openAddDept()">
-    <div class="sal-add-ico">➕</div><div class="sal-add-txt">Добавить подразделение</div>
-  </button>`;
+  let html='<button class="sal-add-btn" onclick="openAddDept()"><div class="sal-add-ico">➕</div><div class="sal-add-txt">Добавить подразделение</div></button>';
   S.depts.forEach((d,di)=>{
     const paidCount=d.emps.filter(e=>e.paid).length;
-    html+=`<div class="dept-card sli" style="animation-delay:${di*.06}s" id="dc-${d.id}">
-      <div class="dept-header" 
-        onclick="toggleDept('${d.id}')"
-        ontouchstart="startHoldDept(event,'${d.id}',${di})"
-        ontouchend="cancelHold()"
-        ontouchcancel="cancelHold()"
-        onmousedown="startHoldDept(event,'${d.id}',${di})"
-        onmouseup="cancelHold()"
-        onmouseleave="cancelHold()">
-        <div class="dept-ico" style="background:${d.color||'#E7F0FD'}">${d.icon||'👥'}</div>
-        <div class="dept-info">
-          <div class="dept-nm">${d.name}</div>
-          <div class="dept-cnt">${d.emps.length} сотр. · ${paidCount} выдано</div>
-        </div>
-        <div class="dept-arrow" id="darr-${d.id}">›</div>
-      </div>
-      <div class="dept-emps" id="demps-${d.id}">
-        ${d.emps.map((e,ei)=>`
-          <div class="emp-row" id="er-${d.id}-${ei}"
-            ontouchstart="startHoldEmp(event,'${d.id}',${di},${ei})"
-            ontouchend="cancelHold()"
-            ontouchcancel="cancelHold()"
-            onmousedown="startHoldEmp(event,'${d.id}',${di},${ei})"
-            onmouseup="cancelHold()"
-            onmouseleave="cancelHold()">
-            <div class="emp-av">👤</div>
-            <div class="emp-nm">${e.name}</div>
-            <div class="emp-status ${e.paid?'paid':'pending'}">${e.paid?'Выдана':'К выдаче'}</div>
-            <div class="emp-actions" onclick="event.stopPropagation()">
-              <button class="emp-btn calc" onclick="recalcEmp(${di},${ei})">₽</button>
-              <button class="emp-btn pay" onclick="togglePay(${di},${ei})" style="${e.paid?'background:var(--muted)':''}">
-                ${e.paid?'↩':'✓'}
-              </button>
-            </div>
-          </div>`).join('')}
-        <div class="add-emp-row" onclick="openAddEmp(${di})">
-          <div class="add-emp-ico">➕</div>
-          <div class="add-emp-lbl">Добавить сотрудника</div>
-        </div>
-      </div>
-    </div>`;
+    html+='<div class="dept-card sli" style="animation-delay:'+(di*.06)+'s" id="dc-'+d.id+'"><div class="dept-header" onclick="toggleDept(\''+d.id+'\')" ontouchstart="startHoldDept(event,\''+d.id+'\','+di+')" ontouchend="cancelHold()" ontouchcancel="cancelHold()" onmousedown="startHoldDept(event,\''+d.id+'\','+di+')" onmouseup="cancelHold()" onmouseleave="cancelHold()"><div class="dept-ico" style="background:'+(d.color||'#E7F0FD')+'">'+(d.icon||'👥')+'</div><div class="dept-info"><div class="dept-nm">'+d.name+'</div><div class="dept-cnt">'+d.emps.length+' сотр. · '+paidCount+' выдано</div></div><div class="dept-arrow" id="darr-'+d.id+'">›</div></div><div class="dept-emps" id="demps-'+d.id+'">'+d.emps.map((e,ei)=>'<div class="emp-row" id="er-'+d.id+'-'+ei+'" ontouchstart="startHoldEmp(event,\''+d.id+'\','+di+','+ei+')" ontouchend="cancelHold()" ontouchcancel="cancelHold()" onmousedown="startHoldEmp(event,\''+d.id+'\','+di+','+ei+')" onmouseup="cancelHold()" onmouseleave="cancelHold()"><div class="emp-av">👤</div><div class="emp-nm">'+e.name+'</div><div class="emp-status '+(e.paid?'paid':'pending')+'">'+(e.paid?'Выдана':'К выдаче')+'</div><div class="emp-actions" onclick="event.stopPropagation()"><button class="emp-btn calc" onclick="recalcEmp('+di+','+ei+')">₽</button><button class="emp-btn pay" onclick="togglePay('+di+','+ei+')" style="'+(e.paid?'background:var(--muted)':'')+'">'+( e.paid?'↩':'✓')+'</button></div></div>').join('')+'<div class="add-emp-row" onclick="openAddEmp('+di+')"><div class="add-emp-ico">➕</div><div class="add-emp-lbl">Добавить сотрудника</div></div></div></div>';
   });
-  html+=`<div class="hold-hint-sal">Удержите подразделение или сотрудника для удаления</div>`;
+  html+='<div class="hold-hint-sal">Удержите подразделение или сотрудника для удаления</div>';
   body.innerHTML=html;
 }
 
@@ -669,23 +644,16 @@ function recalcEmp(di,ei){
   S.depts[di].emps[ei].accrued=Math.floor(Math.random()*20000+8000);
   const deptId=S.depts[di].id;
   saveDepts();renderSalaries();
-  setTimeout(()=>{
-    document.getElementById('demps-'+deptId)?.classList.add('open');
-    document.getElementById('darr-'+deptId)?.classList.add('open');
-  },50);
+  setTimeout(()=>{document.getElementById('demps-'+deptId)?.classList.add('open');document.getElementById('darr-'+deptId)?.classList.add('open');},50);
 }
 
 function togglePay(di,ei){
   S.depts[di].emps[ei].paid=!S.depts[di].emps[ei].paid;
   const deptId=S.depts[di].id;
   saveDepts();renderSalaries();
-  setTimeout(()=>{
-    document.getElementById('demps-'+deptId)?.classList.add('open');
-    document.getElementById('darr-'+deptId)?.classList.add('open');
-  },50);
+  setTimeout(()=>{document.getElementById('demps-'+deptId)?.classList.add('open');document.getElementById('darr-'+deptId)?.classList.add('open');},50);
 }
 
-// Long press for dept/emp
 let holdTimer=null;
 function startHoldDept(e,deptId,di){
   e.stopPropagation();
@@ -693,12 +661,8 @@ function startHoldDept(e,deptId,di){
   if(card)card.classList.add('pressing');
   holdTimer=setTimeout(()=>{
     if(card)card.classList.remove('pressing');
-    confirmDelete(
-      `Удалить подразделение «${S.depts[di].name}»?`,
-      `Все ${S.depts[di].emps.length} сотрудников также будут удалены.`,
-      ()=>{S.depts.splice(di,1);saveDepts();renderSalaries();}
-    );
-  },600);
+    confirmDelete('Удалить подразделение «'+S.depts[di].name+'»?','Все '+S.depts[di].emps.length+' сотрудников также будут удалены.',()=>{S.depts.splice(di,1);saveDepts();renderSalaries();});
+  },700);
 }
 
 function startHoldEmp(e,deptId,di,ei){
@@ -708,19 +672,11 @@ function startHoldEmp(e,deptId,di,ei){
   holdTimer=setTimeout(()=>{
     if(row)row.classList.remove('pressing');
     const emp=S.depts[di].emps[ei];
-    confirmDelete(
-      `Удалить сотрудника «${emp.name}»?`,
-      'Это действие нельзя отменить.',
-      ()=>{
-        S.depts[di].emps.splice(ei,1);
-        saveDepts();renderSalaries();
-        setTimeout(()=>{
-          document.getElementById('demps-'+deptId)?.classList.add('open');
-          document.getElementById('darr-'+deptId)?.classList.add('open');
-        },50);
-      }
-    );
-  },600);
+    confirmDelete('Удалить сотрудника «'+emp.name+'»?','Это действие нельзя отменить.',()=>{
+      S.depts[di].emps.splice(ei,1);saveDepts();renderSalaries();
+      setTimeout(()=>{document.getElementById('demps-'+deptId)?.classList.add('open');document.getElementById('darr-'+deptId)?.classList.add('open');},50);
+    });
+  },700);
 }
 
 function cancelHold(){
@@ -729,16 +685,8 @@ function cancelHold(){
 }
 
 function openAddDept(){
-  showModal(`
-    <div class="modal-title">Новое подразделение</div>
-    <div class="modal-desc">Введите название подразделения</div>
-    <div class="mfield"><label class="mlbl">Название</label><input class="minput" id="m_deptName" placeholder="Например: Администраторы"></div>
-    <div class="mfield"><label class="mlbl">Иконка (эмодзи)</label><input class="minput" id="m_deptIcon" placeholder="👥" maxlength="2"></div>
-    <button class="mbtn" onclick="saveDept()">Добавить</button>
-    <button class="mcancel" onclick="closeOverlayNow()">Отмена</button>
-  `);
+  showModal('<div class="modal-title">Новое подразделение</div><div class="modal-desc">Введите название подразделения</div><div class="mfield"><label class="mlbl">Название</label><input class="minput" id="m_deptName" placeholder="Например: Администраторы"></div><div class="mfield"><label class="mlbl">Иконка (эмодзи)</label><input class="minput" id="m_deptIcon" placeholder="👥" maxlength="2"></div><button class="mbtn" onclick="saveDept()">Добавить</button><button class="mcancel" onclick="closeOverlayNow()">Отмена</button>');
 }
-
 function saveDept(){
   const name=document.getElementById('m_deptName').value.trim();
   const icon=document.getElementById('m_deptIcon').value.trim()||'👥';
@@ -747,30 +695,19 @@ function saveDept(){
   S.depts.push({id:'d'+Date.now(),name,icon,color:colors[S.depts.length%colors.length],emps:[]});
   saveDepts();closeOverlayNow();renderSalaries();
 }
-
 function openAddEmp(di){
-  showModal(`
-    <div class="modal-title">Новый сотрудник</div>
-    <div class="modal-desc">Добавление в «${S.depts[di].name}»</div>
-    <div class="mfield"><label class="mlbl">Имя и фамилия</label><input class="minput" id="m_empName" placeholder="Иван Иванов"></div>
-    <button class="mbtn" onclick="saveEmp(${di})">Добавить</button>
-    <button class="mcancel" onclick="closeOverlayNow()">Отмена</button>
-  `);
+  showModal('<div class="modal-title">Новый сотрудник</div><div class="modal-desc">Добавление в «'+S.depts[di].name+'»</div><div class="mfield"><label class="mlbl">Имя и фамилия</label><input class="minput" id="m_empName" placeholder="Иван Иванов"></div><button class="mbtn" onclick="saveEmp('+di+')">Добавить</button><button class="mcancel" onclick="closeOverlayNow()">Отмена</button>');
 }
-
 function saveEmp(di){
   const name=document.getElementById('m_empName').value.trim();
   if(!name)return;
   S.depts[di].emps.push({name,paid:false,accrued:Math.floor(Math.random()*12000+8000)});
   const deptId=S.depts[di].id;
   saveDepts();closeOverlayNow();renderSalaries();
-  setTimeout(()=>{
-    document.getElementById('demps-'+deptId)?.classList.add('open');
-    document.getElementById('darr-'+deptId)?.classList.add('open');
-  },50);
+  setTimeout(()=>{document.getElementById('demps-'+deptId)?.classList.add('open');document.getElementById('darr-'+deptId)?.classList.add('open');},50);
 }
 
-// ANALYTICS
+// ПРАВКА 3: Виджеты и графики в одной сетке, одна кнопка +
 function setPeriod(el,period){
   document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');curPeriod=period;renderWidgets();
@@ -779,118 +716,54 @@ function setPeriod(el,period){
 function renderWidgets(){
   const grid=document.getElementById('widgetGrid');
   const data=DEMO[curPeriod];
-  const kpiCount=S.widgets.filter(w=>['kpi','top'].includes(WCAT[w.id]?.type)).length;
-  const chartCount=S.widgets.filter(w=>WCAT[w.id]?.type==='chart').length;
-  const canAddKpi=kpiCount<8, canAddChart=chartCount<3;
+  const totalCount=S.widgets.length;
+  const canAdd=totalCount<11; // 8 kpi/top + 3 chart
 
   let html='';
   S.widgets.forEach((w,wi)=>{
     const cat=WCAT[w.id];if(!cat)return;
     const isLast=wi===S.widgets.length-1;
+    const holdAttrs='ontouchstart="startHoldWidget(event,\''+w.id+'\')" ontouchend="cancelHold()" ontouchcancel="cancelHold()" onmousedown="startHoldWidget(event,\''+w.id+'\')" onmouseup="cancelHold()" onmouseleave="cancelHold()"';
 
     if(cat.type==='kpi'){
       const d=data[w.id]||{val:'—',badge:'нет данных',dir:'flat'};
-      html+=`<div class="wcard" id="wc-${w.id}"
-        ontouchstart="startHoldWidget(event,'${w.id}')"
-        ontouchend="cancelHold()"
-        ontouchcancel="cancelHold()"
-        onmousedown="startHoldWidget(event,'${w.id}')"
-        onmouseup="cancelHold()"
-        onmouseleave="cancelHold()">
-        <div>
-          <div class="wcard-lbl">${cat.ico} ${cat.lbl}</div>
-          <div class="wcard-val">${d.val}</div>
-          <div class="wcard-badge ${d.dir}">${d.badge}</div>
-        </div>
-      </div>`;
-      if(isLast&&canAddKpi){
-        html+=`<div class="add-wcard" onclick="openWidgetPicker()">
-          <div class="add-wcard-icon">＋</div>
-          <div class="add-wcard-lbl">Виджет</div>
-        </div>`;
-      }
+      html+='<div class="wcard" id="wc-'+w.id+'" '+holdAttrs+'><div><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="wcard-val">'+d.val+'</div><div class="wcard-badge '+d.dir+'">'+d.badge+'</div></div></div>';
     }else if(cat.type==='top'){
       const items=(data[w.id]||[]).slice(0,3);
-      html+=`<div class="wcard" id="wc-${w.id}"
-        ontouchstart="startHoldWidget(event,'${w.id}')"
-        ontouchend="cancelHold()"
-        ontouchcancel="cancelHold()"
-        onmousedown="startHoldWidget(event,'${w.id}')"
-        onmouseup="cancelHold()"
-        onmouseleave="cancelHold()">
-        <div class="wcard-lbl">${cat.ico} ${cat.lbl}</div>
-        <div class="top-list">${items.map((it,i)=>`
-          <div class="top-item">
-            <div class="top-rank">${i+1}</div>
-            <div class="top-name">${it.split(' — ')[0]}</div>
-            <div class="top-val">${it.split(' — ')[1]||''}</div>
-          </div>`).join('')}
-        </div>
-      </div>`;
-      if(isLast&&canAddKpi){
-        html+=`<div class="add-wcard" onclick="openWidgetPicker()">
-          <div class="add-wcard-icon">＋</div>
-          <div class="add-wcard-lbl">Виджет</div>
-        </div>`;
-      }
+      html+='<div class="wcard" id="wc-'+w.id+'" '+holdAttrs+'><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="top-list">'+items.map((it,i)=>'<div class="top-item"><div class="top-rank">'+(i+1)+'</div><div class="top-name">'+it.split(' — ')[0]+'</div><div class="top-val">'+(it.split(' — ')[1]||'')+'</div></div>').join('')+'</div></div>';
     }else if(cat.type==='chart'){
       const bars=data[w.id]||[];
       const labels=data.chart_labels||[];
       const max=Math.max(...bars)||1;
-      html+=`<div class="wcard full" id="wc-${w.id}"
-        ontouchstart="startHoldWidget(event,'${w.id}')"
-        ontouchend="cancelHold()"
-        ontouchcancel="cancelHold()"
-        onmousedown="startHoldWidget(event,'${w.id}')"
-        onmouseup="cancelHold()"
-        onmouseleave="cancelHold()">
-        <div class="wcard-lbl">${cat.ico} ${cat.lbl}</div>
-        <div class="mini-bars">
-          ${bars.map((v,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
-            <div class="mb ${v===max?'hi':''}" style="height:${Math.round(v/max*100)}%;width:100%"></div>
-            <div class="mb-lbl">${labels[i]||''}</div>
-          </div>`).join('')}
-        </div>
-      </div>`;
-      if(isLast&&canAddChart){
-        html+=`<div class="add-wcard full" onclick="openWidgetPicker()">
-          <div class="add-wcard-icon">＋</div>
-          <div class="add-wcard-lbl">График</div>
-        </div>`;
-      }
+      html+='<div class="wcard chart-card" id="wc-'+w.id+'" '+holdAttrs+'><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="mini-bars">'+bars.map((v,i)=>'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div class="mb '+(v===max?'hi':'')+'" style="height:'+Math.round(v/max*100)+'%;width:100%"></div><div class="mb-lbl">'+(labels[i]||'')+'</div></div>').join('')+'</div></div>';
+    }
+
+    // Кнопка + после последнего виджета (если не chart и есть место)
+    if(isLast&&canAdd&&cat.type!=='chart'){
+      html+='<div class="add-wcard" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
+    }
+    if(isLast&&canAdd&&cat.type==='chart'){
+      html+='<div class="add-wcard chart-card" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
     }
   });
 
-  // If no widgets at all
   if(S.widgets.length===0){
-    html+=`<div class="add-wcard" onclick="openWidgetPicker()">
-      <div class="add-wcard-icon">＋</div><div class="add-wcard-lbl">Виджет</div>
-    </div>
-    <div class="add-wcard full" onclick="openWidgetPicker()">
-      <div class="add-wcard-icon">＋</div><div class="add-wcard-lbl">График</div>
-    </div>`;
+    html='<div class="add-wcard" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
   }
-
   if(S.widgets.length>0){
-    html+=`<div class="hold-hint">Удержите виджет для удаления</div>`;
+    html+='<div class="hold-hint">Удержите виджет для удаления</div>';
   }
-
   grid.innerHTML=html;
 }
 
-// Long press widget
 function startHoldWidget(e,wid){
   const card=document.getElementById('wc-'+wid);
   if(card)card.classList.add('pressing');
   holdTimer=setTimeout(()=>{
     if(card)card.classList.remove('pressing');
     const cat=WCAT[wid];
-    confirmDelete(
-      `Удалить виджет «${cat?.lbl||wid}»?`,
-      'Вы всегда можете добавить его снова.',
-      ()=>{S.widgets=S.widgets.filter(w=>w.id!==wid);saveWidgets();renderWidgets();}
-    );
-  },600);
+    confirmDelete('Удалить виджет «'+(cat?.lbl||wid)+'»?','Вы всегда можете добавить его снова.',()=>{S.widgets=S.widgets.filter(w=>w.id!==wid);saveWidgets();renderWidgets();});
+  },700);
 }
 
 function openWidgetPicker(){
@@ -898,33 +771,17 @@ function openWidgetPicker(){
   const kpiCount=S.widgets.filter(w=>['kpi','top'].includes(WCAT[w.id]?.type)).length;
   const chartCount=S.widgets.filter(w=>WCAT[w.id]?.type==='chart').length;
 
-  let html=`<div class="modal-title">Добавить виджет</div>
-  <div class="modal-desc">Выберите что показать на дашборде</div>
-  <div class="wpick-grid">
-  <div class="wpick-section">Показатели (${kpiCount}/8)</div>`;
-
+  let html='<div class="modal-title">Добавить виджет</div><div class="modal-desc">Выберите что показать на дашборде</div><div class="wpick-grid"><div class="wpick-section">Показатели ('+kpiCount+'/8)</div>';
   Object.entries(WCAT).filter(([,c])=>c.type==='kpi'||c.type==='top').forEach(([id,cat])=>{
-    const added=existing.includes(id);
-    const disabled=!added&&kpiCount>=8;
-    html+=`<div class="wpick-item ${added?'selected':''} ${disabled?'disabled':''}" onclick="${added||disabled?'':'addWidget(\''+id+'\')'}">
-      <div class="wpick-ico">${cat.ico}</div>
-      <div class="wpick-nm">${cat.lbl}</div>
-      <div class="wpick-type">${added?'✓ Добавлен':disabled?'Лимит':cat.type==='top'?'Список':'Число'}</div>
-    </div>`;
+    const added=existing.includes(id);const disabled=!added&&kpiCount>=8;
+    html+='<div class="wpick-item '+(added?'selected':'')+(disabled?' disabled':'')+'" onclick="'+(added||disabled?'':'addWidget(\''+id+'\')')+'"><div class="wpick-ico">'+cat.ico+'</div><div class="wpick-nm">'+cat.lbl+'</div><div class="wpick-type">'+(added?'✓ Добавлен':disabled?'Лимит':cat.type==='top'?'Список':'Число')+'</div></div>';
   });
-
-  html+=`<div class="wpick-section">Графики (${chartCount}/3)</div>`;
+  html+='<div class="wpick-section">Графики ('+chartCount+'/3)</div>';
   Object.entries(WCAT).filter(([,c])=>c.type==='chart').forEach(([id,cat])=>{
-    const added=existing.includes(id);
-    const disabled=!added&&chartCount>=3;
-    html+=`<div class="wpick-item ${added?'selected':''} ${disabled?'disabled':''}" onclick="${added||disabled?'':'addWidget(\''+id+'\')'}">
-      <div class="wpick-ico">${cat.ico}</div>
-      <div class="wpick-nm">${cat.lbl}</div>
-      <div class="wpick-type">${added?'✓ Добавлен':disabled?'Лимит':'График'}</div>
-    </div>`;
+    const added=existing.includes(id);const disabled=!added&&chartCount>=3;
+    html+='<div class="wpick-item '+(added?'selected':'')+(disabled?' disabled':'')+'" onclick="'+(added||disabled?'':'addWidget(\''+id+'\')')+'"><div class="wpick-ico">'+cat.ico+'</div><div class="wpick-nm">'+cat.lbl+'</div><div class="wpick-type">'+(added?'✓ Добавлен':disabled?'Лимит':'График')+'</div></div>';
   });
-
-  html+=`</div><button class="mcancel" onclick="closeOverlayNow()">Закрыть</button>`;
+  html+='</div><button class="mcancel" onclick="closeOverlayNow()">Закрыть</button>';
   showModal(html);
 }
 
@@ -934,21 +791,12 @@ function addWidget(id){
   saveWidgets();closeOverlayNow();renderWidgets();
 }
 
-// CONFIRM DELETE
 function confirmDelete(title,desc,onConfirm){
-  showModal(`
-    <div class="modal-title">🗑️ ${title}</div>
-    <div class="modal-desc">${desc}</div>
-    <div class="confirm-btns">
-      <button class="mbtn" style="background:var(--bg);color:var(--text)" onclick="closeOverlayNow()">Нет</button>
-      <button class="mbtn red" onclick="confirmYes()">Да, удалить</button>
-    </div>
-  `);
+  showModal('<div class="modal-title">🗑️ '+title+'</div><div class="modal-desc">'+desc+'</div><div class="confirm-btns"><button class="mbtn" style="background:var(--bg);color:var(--text)" onclick="closeOverlayNow()">Нет</button><button class="mbtn red" onclick="confirmYes()">Да, удалить</button></div>');
   window._confirmCb=onConfirm;
 }
 function confirmYes(){if(window._confirmCb){window._confirmCb();window._confirmCb=null;}closeOverlayNow();}
 
-// CONNECTIONS
 const CONN_CFG={
   iiko:{name:'iiko',fields:[{k:'url',lbl:'Адрес сервера',ph:'http://192.168.1.1:8080'},{k:'login',lbl:'Логин API',ph:'api_user'},{k:'pass',lbl:'Пароль',ph:'••••••••',t:'password'}]},
   rkeeper:{name:'r_keeper',fields:[{k:'url',lbl:'Адрес сервера',ph:'http://server:8080'},{k:'token',lbl:'API Token',ph:'Ваш токен'}]},
@@ -968,14 +816,9 @@ function renderConns(){
 function openConn(key){
   curConn=key;const cfg=CONN_CFG[key];const saved=S.conns[key]||{};
   const isConn=!!S.conns[key];
-  let html=`<div class="modal-title">${cfg.name}</div><div class="modal-desc">Введите данные API для подключения</div>`;
-  cfg.fields.forEach(f=>{
-    html+=`<div class="mfield"><label class="mlbl">${f.lbl}</label>
-      <input class="minput" id="cf_${f.k}" type="${f.t||'text'}" placeholder="${f.ph}" value="${saved[f.k]||''}">
-    </div>`;
-  });
-  html+=`<button class="mbtn" style="${isConn?'background:var(--green)':''}" onclick="saveConn()">${isConn?'Обновить':'Подключить'}</button>
-  <button class="mcancel" onclick="closeOverlayNow()">Отмена</button>`;
+  let html='<div class="modal-title">'+cfg.name+'</div><div class="modal-desc">Введите данные API для подключения</div>';
+  cfg.fields.forEach(f=>{html+='<div class="mfield"><label class="mlbl">'+f.lbl+'</label><input class="minput" id="cf_'+f.k+'" type="'+(f.t||'text')+'" placeholder="'+f.ph+'" value="'+(saved[f.k]||'')+'"></div>';});
+  html+='<button class="mbtn" style="'+(isConn?'background:var(--green)':'')+'" onclick="saveConn()">'+(isConn?'Обновить':'Подключить')+'</button><button class="mcancel" onclick="closeOverlayNow()">Отмена</button>';
   showModal(html);
 }
 
@@ -992,17 +835,15 @@ function saveConn(){
   if(b){b.textContent='Подключено';b.className='conn-badge on';}
   closeOverlayNow();
   setTimeout(()=>{
-    addMsg(`✅ ${cfg.name} успешно подключён! Теперь я могу отвечать по данным вашей системы.`,'in');
+    addMsg('✅ '+cfg.name+' успешно подключён! Теперь я могу отвечать по данным вашей системы.','in');
     nav('chatScreen',document.querySelector('.ni'));
   },300);
 }
 
-// MODAL
 function showModal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('overlay').classList.add('show')}
 function closeOverlay(e){if(e.target===document.getElementById('overlay'))closeOverlayNow()}
 function closeOverlayNow(){document.getElementById('overlay').classList.remove('show')}
 
-// INIT
 renderQuickBar();renderFiles();renderSalaries();renderWidgets();renderConns();
 </script>
 </body>
