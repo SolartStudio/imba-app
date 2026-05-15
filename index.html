@@ -4,785 +4,1006 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>IMBA</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-:root {
-  --blue:#1877F2; --blue-dark:#0D65D9; --blue-light:#E7F0FD; --blue-mid:#4A90D9;
-  --bg:#F0F2F5; --white:#fff; --text:#1C1E21; --muted:#65676B;
-  --border:#E4E6EB; --green:#31A24C; --green-bg:#E6F4EA;
-  --red:#D93025; --red-bg:#FCE8E6; --amber:#F59E0B; --amber-bg:#FEF3E2;
-  --shadow:0 1px 4px rgba(0,0,0,0.1);
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#1877F2;--blue-dark:#0D65D9;--blue-light:#E7F0FD;
+  --bg:#F0F2F5;--white:#fff;--text:#1C1E21;--muted:#65676B;
+  --border:#E4E6EB;--green:#31A24C;--green-bg:#E6F4EA;
+  --red:#D93025;--red-bg:#FCE8E6;--amber:#F59E0B;--amber-bg:#FEF3E2;
+  --shadow:0 1px 4px rgba(0,0,0,.1);--shadow2:0 2px 12px rgba(0,0,0,.08);
   --font:'Manrope',sans-serif;
 }
-body { font-family:var(--font); background:var(--bg); height:100vh; overflow:hidden; color:var(--text); }
+body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;color:var(--text)}
+.screen{display:none;flex-direction:column;height:100vh;position:absolute;width:100%;top:0;left:0}
+.screen.active{display:flex}
+.header{background:var(--white);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+.hav{width:40px;height:40px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hinfo{flex:1}
+.hname{font-size:15px;font-weight:700}
+.hsub{font-size:12px;color:var(--green);font-weight:600}
+.hsub.g{color:var(--muted)}
+.ibtn{width:36px;height:36px;background:var(--bg);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;color:var(--muted);flex-shrink:0}
+.ibtn:active{background:var(--border)}
+.body{flex:1;overflow-y:auto;background:var(--bg)}
+.bnav{background:var(--white);border-top:1px solid var(--border);display:flex;padding:6px 0 max(env(safe-area-inset-bottom),6px);flex-shrink:0}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px}
+.ni-icon{font-size:19px;line-height:1}
+.ni-lbl{font-size:9px;font-weight:600;color:var(--muted)}
+.ni.active .ni-lbl{color:var(--blue)}
 
-/* SCREENS */
-.screen { display:none; flex-direction:column; height:100vh; position:absolute; width:100%; top:0; left:0; }
-.screen.active { display:flex; }
+/* CHAT */
+.messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.dchip{align-self:center;background:rgba(0,0,0,.06);padding:3px 12px;border-radius:10px;font-size:11px;color:var(--muted);margin:6px 0}
+.mwrap{display:flex;flex-direction:column;max-width:82%;animation:pop .25s ease}
+.mwrap.out{align-self:flex-end;align-items:flex-end}
+.mwrap.in{align-self:flex-start;align-items:flex-start}
+.bubble{padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.55;word-break:break-word}
+.out .bubble{background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.in .bubble{background:var(--white);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow)}
+.mtime{font-size:11px;color:var(--muted);padding:2px 4px}
+.tybbl{display:flex;gap:5px;align-items:center;padding:12px 16px}
+.tdot{width:8px;height:8px;border-radius:50%;background:var(--muted);animation:tdot 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}
+.tdot:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.fstrip{display:none;background:var(--white);border-top:1px solid var(--border);padding:10px 14px;align-items:center;gap:10px}
+.fstrip.show{display:flex}
+.fsico{font-size:24px}.fsinf{flex:1}.fsnm{font-size:13px;font-weight:700}.fssz{font-size:11px;color:var(--muted)}
+.fsrm{width:28px;height:28px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.qbar{background:var(--white);padding:8px 12px;display:flex;gap:7px;overflow-x:auto;border-top:1px solid var(--border);flex-shrink:0;scrollbar-width:none}
+.qbar::-webkit-scrollbar{display:none}
+.qbtn{white-space:nowrap;padding:6px 14px;border-radius:20px;border:1.5px solid var(--blue);background:transparent;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);flex-shrink:0}
+.qbtn:active{background:var(--blue);color:#fff}
+.irow{background:var(--white);padding:9px 12px;display:flex;align-items:flex-end;gap:8px;border-top:1px solid var(--border);flex-shrink:0}
+.attbtn{width:38px;height:38px;background:var(--bg);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:19px;flex-shrink:0}
+.attbtn:active{background:var(--border)}
+.iwrap{flex:1;background:var(--bg);border-radius:22px;padding:8px 14px;min-height:38px;display:flex;align-items:center}
+.mta{border:none;background:transparent;outline:none;font-size:15px;font-family:var(--font);color:var(--text);width:100%;resize:none;max-height:90px;line-height:1.4}
+.mta::placeholder{color:var(--muted)}
+.sndbtn{width:38px;height:38px;background:var(--blue);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+.sndbtn:active{background:var(--blue-dark);transform:scale(.9)}
+.sndbtn svg{width:17px;height:17px;fill:#fff}
+#fileInput{display:none}
 
-/* HEADER */
-.header {
-  background:var(--white); padding:12px 16px;
-  display:flex; align-items:center; gap:12px;
-  border-bottom:1px solid var(--border); flex-shrink:0;
-  position:relative; z-index:10;
-}
-.header-avatar {
-  width:40px; height:40px; background:var(--blue);
-  border-radius:50%; display:flex; align-items:center;
-  justify-content:center; font-size:18px; flex-shrink:0;
-}
-.header-info { flex:1; }
-.header-name { font-size:15px; font-weight:700; }
-.header-sub { font-size:12px; color:var(--green); font-weight:600; }
-.header-sub.gray { color:var(--muted); }
-.icon-btn {
-  width:36px; height:36px; background:var(--bg);
-  border:none; border-radius:50%; display:flex;
-  align-items:center; justify-content:center;
-  cursor:pointer; font-size:17px; color:var(--muted);
-  transition:background .15s; flex-shrink:0;
-}
-.icon-btn:active { background:var(--border); }
+/* ANALYTICS */
+.summary-bar{background:var(--white);padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.summary-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.summary-row::-webkit-scrollbar{display:none}
+.sum-chip{flex-shrink:0;background:var(--bg);border-radius:12px;padding:8px 12px;min-width:110px}
+.sum-chip.alert-up{background:var(--green-bg)}
+.sum-chip.alert-down{background:var(--red-bg)}
+.sum-chip.alert-warn{background:var(--amber-bg)}
+.sum-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.sum-val{font-size:14px;font-weight:800;margin-top:2px}
+.sum-chip.alert-up .sum-label,.sum-chip.alert-up .sum-val{color:var(--green)}
+.sum-chip.alert-down .sum-label,.sum-chip.alert-down .sum-val{color:var(--red)}
+.sum-chip.alert-warn .sum-label,.sum-chip.alert-warn .sum-val{color:var(--amber)}
+.ptabs{display:flex;gap:4px;padding:10px 14px 0;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+.ptab{flex:1;padding:7px 4px;border:none;background:transparent;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--font);border-bottom:2.5px solid transparent;transition:all .2s}
+.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-/* SCROLLABLE BODY */
-.body { flex:1; overflow-y:auto; background:var(--bg); }
+/* Widget grid */
+.wgrid{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.wcard{background:var(--white);border-radius:16px;padding:14px;box-shadow:var(--shadow2);position:relative;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;user-select:none;transition:transform .1s}
+.wcard.pressing{transform:scale(.97);background:#f8f8f8}
+.wcard-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.wcard-val{font-size:22px;font-weight:800;color:var(--text);line-height:1.1}
+.wcard-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.wcard-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:6px}
+.wcard-badge.up{background:var(--green-bg);color:var(--green)}
+.wcard-badge.down{background:var(--red-bg);color:var(--red)}
+.wcard-badge.flat{background:var(--bg);color:var(--muted)}
+.wcard.full{grid-column:1/-1}
+.mini-bars{display:flex;align-items:flex-end;gap:3px;height:60px;margin-top:10px}
+.mb{flex:1;border-radius:3px 3px 0 0;background:var(--blue-light)}
+.mb.hi{background:var(--blue)}
+.mb-lbl{font-size:9px;color:var(--muted);text-align:center;margin-top:2px}
+.top-list{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.top-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.top-rank{width:18px;height:18px;border-radius:50%;background:var(--blue-light);color:var(--blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.top-name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-val{font-weight:700;color:var(--blue);font-size:11px}
+.add-wcard{background:transparent;border:2px dashed var(--border);border-radius:16px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .2s}
+.add-wcard:active{background:var(--blue-light);border-color:var(--blue)}
+.add-wcard-icon{font-size:28px;color:var(--muted)}
+.add-wcard-lbl{font-size:12px;font-weight:600;color:var(--muted)}
+.add-wcard.full{grid-column:1/-1}
+.hold-hint{font-size:10px;color:var(--muted);text-align:center;padding:4px 12px 0;grid-column:1/-1}
 
-/* BOTTOM NAV */
-.bottom-nav {
-  background:var(--white); border-top:1px solid var(--border);
-  display:flex; padding:8px 0 max(env(safe-area-inset-bottom),8px);
-  flex-shrink:0;
-}
-.nav-item {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; gap:3px; cursor:pointer; padding:2px;
-}
-.nav-icon { font-size:21px; line-height:1; }
-.nav-label { font-size:10px; font-weight:600; color:var(--muted); }
-.nav-item.active .nav-label { color:var(--blue); }
+/* FILES */
+.sbar{background:var(--white);padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.siwrap{background:var(--bg);border-radius:22px;padding:9px 14px;display:flex;align-items:center;gap:8px}
+.sico{font-size:15px;color:var(--muted)}
+.sinp{border:none;background:transparent;outline:none;font-size:14px;font-family:var(--font);color:var(--text);flex:1}
+.sinp::placeholder{color:var(--muted)}
+.flist{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.fitem{background:var(--white);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer}
+.fitem:active{background:var(--blue-light)}
+.fitem-ico{font-size:28px;flex-shrink:0}
+.fitem-inf{flex:1}
+.fitem-nm{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.fitem-mt{font-size:12px;color:var(--muted);margin-top:2px}
+.fitem-sz{font-size:12px;color:var(--muted);font-weight:600}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-ico{font-size:48px;margin-bottom:12px}
+.empty-txt{font-size:14px;font-weight:600}
 
-/* ═══════════════ CHAT ═══════════════ */
-#chatScreen { background:var(--bg); }
+/* SALARIES */
+.sal-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.sal-add-btn{background:var(--white);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer;border:none;font-family:var(--font);width:100%}
+.sal-add-btn:active{background:var(--blue-light)}
+.sal-add-ico{width:44px;height:44px;border-radius:12px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.sal-add-txt{font-size:15px;font-weight:700;color:var(--blue)}
+.dept-card{background:var(--white);border-radius:16px;box-shadow:var(--shadow2);overflow:hidden;user-select:none;transition:transform .1s}
+.dept-card.pressing{transform:scale(.98);background:#f8f8f8}
+.dept-header{display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer}
+.dept-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.dept-info{flex:1}
+.dept-nm{font-size:15px;font-weight:700}
+.dept-cnt{font-size:12px;color:var(--muted);margin-top:1px}
+.dept-arrow{font-size:18px;color:var(--muted);transition:transform .2s}
+.dept-arrow.open{transform:rotate(90deg)}
+.dept-emps{display:none;border-top:1px solid var(--border)}
+.dept-emps.open{display:block}
+.emp-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);user-select:none;transition:background .1s}
+.emp-row.pressing{background:var(--red-bg)}
+.emp-av{width:36px;height:36px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.emp-nm{flex:1;font-size:14px;font-weight:600}
+.emp-status{font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px}
+.emp-status.paid{background:var(--green-bg);color:var(--green)}
+.emp-status.pending{background:var(--amber-bg);color:var(--amber)}
+.emp-actions{display:flex;gap:6px}
+.emp-btn{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);border:none}
+.emp-btn.pay{background:var(--green);color:#fff}
+.emp-btn.calc{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.add-emp-row{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
+.add-emp-row:active{background:var(--blue-light)}
+.add-emp-ico{width:36px;height:36px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.add-emp-lbl{font-size:13px;font-weight:600;color:var(--blue)}
+.hold-hint-sal{font-size:11px;color:var(--muted);text-align:center;padding:8px;font-style:italic}
 
-.messages {
-  flex:1; overflow-y:auto; padding:12px 14px;
-  display:flex; flex-direction:column; gap:3px;
-}
+/* CONNECTIONS */
+.conn-body{padding:14px;display:flex;flex-direction:column;gap:10px}
+.conn-section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
+.conn-card{background:var(--white);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow2);cursor:pointer;transition:all .15s}
+.conn-card:active{transform:scale(.98)}
+.conn-logo{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.conn-info{flex:1}
+.conn-nm{font-size:15px;font-weight:700}
+.conn-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.conn-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.conn-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.conn-badge.off{background:var(--bg);color:var(--muted)}
+.conn-badge.on{background:var(--green-bg);color:var(--green)}
+.conn-arr{font-size:16px;color:var(--muted)}
 
-.date-chip {
-  align-self:center; background:rgba(0,0,0,.06);
-  padding:3px 12px; border-radius:10px;
-  font-size:11px; color:var(--muted); margin:6px 0;
-}
+/* MODAL */
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end}
+.overlay.show{display:flex}
+.modal{background:var(--white);border-radius:24px 24px 0 0;padding:20px 20px max(env(safe-area-inset-bottom),20px);width:100%;animation:slideUp .3s ease;max-height:85vh;overflow-y:auto}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.modal-desc{font-size:13px;color:var(--muted);margin-bottom:18px}
+.mfield{margin-bottom:12px}
+.mlbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.4px}
+.minput{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:var(--font);color:var(--text);background:var(--bg);outline:none;transition:border .2s}
+.minput:focus{border-color:var(--blue);background:var(--white)}
+.mbtn{width:100%;padding:14px;border:none;border-radius:14px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:4px}
+.mbtn:active{background:var(--blue-dark)}
+.mbtn.red{background:var(--red)}
+.mbtn.red:active{background:#b71c1c}
+.mcancel{width:100%;padding:12px;border:none;background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:4px}
+.confirm-btns{display:flex;gap:10px;margin-top:8px}
+.confirm-btns .mbtn{flex:1;margin:0}
 
-.msg-wrap { display:flex; flex-direction:column; max-width:82%; animation:pop .25s ease; }
-.msg-wrap.out { align-self:flex-end; align-items:flex-end; }
-.msg-wrap.in  { align-self:flex-start; align-items:flex-start; }
+/* Widget picker */
+.wpick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.wpick-item{background:var(--bg);border-radius:12px;padding:12px;cursor:pointer;border:2px solid transparent;transition:all .15s;display:flex;flex-direction:column;gap:4px}
+.wpick-item:active,.wpick-item.selected{border-color:var(--blue);background:var(--blue-light)}
+.wpick-item.disabled{opacity:.4;cursor:not-allowed}
+.wpick-ico{font-size:22px}
+.wpick-nm{font-size:12px;font-weight:700}
+.wpick-type{font-size:10px;color:var(--muted);font-weight:600}
+.wpick-section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:8px 0 4px;grid-column:1/-1}
 
-.bubble {
-  padding:10px 14px; border-radius:18px;
-  font-size:14px; line-height:1.55; word-break:break-word;
-}
-.out .bubble { background:var(--blue); color:#fff; border-bottom-right-radius:4px; }
-.in .bubble  { background:var(--white); color:var(--text); border-bottom-left-radius:4px; box-shadow:var(--shadow); }
-
-.msg-time { font-size:11px; color:var(--muted); padding:2px 4px; }
-
-.typing-bubble { display:flex; gap:5px; align-items:center; padding:12px 16px; }
-.t-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); animation:tdot 1.2s infinite; }
-.t-dot:nth-child(2) { animation-delay:.2s; }
-.t-dot:nth-child(3) { animation-delay:.4s; }
-@keyframes tdot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-
-/* File preview strip */
-.file-strip {
-  display:none; background:var(--white);
-  border-top:1px solid var(--border);
-  padding:10px 14px; align-items:center; gap:10px;
-}
-.file-strip.show { display:flex; }
-.fstrip-icon { font-size:24px; }
-.fstrip-info { flex:1; }
-.fstrip-name { font-size:13px; font-weight:700; }
-.fstrip-size { font-size:11px; color:var(--muted); }
-.fstrip-rm { width:28px;height:28px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center; }
-
-/* Quick questions */
-.quick-bar {
-  background:var(--white); padding:9px 12px;
-  display:flex; gap:7px; overflow-x:auto;
-  border-top:1px solid var(--border); flex-shrink:0;
-  scrollbar-width:none;
-}
-.quick-bar::-webkit-scrollbar { display:none; }
-.quick-btn {
-  white-space:nowrap; padding:7px 14px; border-radius:20px;
-  border:1.5px solid var(--blue); background:transparent;
-  color:var(--blue); font-size:13px; font-weight:600;
-  cursor:pointer; font-family:var(--font); flex-shrink:0;
-  transition:all .15s;
-}
-.quick-btn:active { background:var(--blue); color:#fff; }
-
-/* Input row */
-.input-row {
-  background:var(--white); padding:9px 12px;
-  display:flex; align-items:flex-end; gap:8px;
-  border-top:1px solid var(--border); flex-shrink:0;
-}
-.attach-btn { width:38px;height:38px;background:var(--bg);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:19px;flex-shrink:0; }
-.attach-btn:active { background:var(--border); }
-.input-wrap { flex:1;background:var(--bg);border-radius:22px;padding:8px 14px;min-height:38px;display:flex;align-items:center; }
-.msg-ta { border:none;background:transparent;outline:none;font-size:15px;font-family:var(--font);color:var(--text);width:100%;resize:none;max-height:90px;line-height:1.4; }
-.msg-ta::placeholder { color:var(--muted); }
-.send-btn { width:38px;height:38px;background:var(--blue);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s; }
-.send-btn:active { background:var(--blue-dark); transform:scale(.9); }
-.send-btn svg { width:17px;height:17px;fill:#fff; }
-#fileInput { display:none; }
-
-/* ═══════════════ ANALYTICS ═══════════════ */
-.period-tabs {
-  display:flex; gap:4px; padding:12px 14px 0;
-  background:var(--white); border-bottom:1px solid var(--border);
-}
-.ptab {
-  flex:1; padding:8px 4px; border:none; background:transparent;
-  font-size:13px; font-weight:700; color:var(--muted);
-  cursor:pointer; font-family:var(--font);
-  border-bottom:2.5px solid transparent; transition:all .2s;
-}
-.ptab.active { color:var(--blue); border-bottom-color:var(--blue); }
-
-.analytics-body { padding:14px; display:flex; flex-direction:column; gap:12px; }
-
-.card {
-  background:var(--white); border-radius:14px;
-  padding:16px; box-shadow:var(--shadow);
-}
-.card-label { font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px; }
-.card-value { font-size:30px;font-weight:800;color:var(--text);line-height:1; }
-.card-row { display:flex;align-items:flex-end;justify-content:space-between; }
-
-.badge { font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px; }
-.badge.up   { background:var(--green-bg);color:var(--green); }
-.badge.down { background:var(--red-bg);color:var(--red); }
-.badge.flat { background:var(--bg);color:var(--muted); }
-
-.mini-chart { display:flex;align-items:flex-end;gap:4px;height:44px;margin-top:14px; }
-.mbar { flex:1;border-radius:5px 5px 0 0;background:var(--blue-light);transition:background .2s; }
-.mbar.hi { background:var(--blue); }
-
-.tabs-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
-.tab-card { background:var(--white);border-radius:14px;padding:14px;box-shadow:var(--shadow); }
-.tab-card-label { font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px; }
-.tab-card-value { font-size:22px;font-weight:800;color:var(--text); }
-.tab-card-sub { font-size:11px;color:var(--muted);margin-top:2px; }
-
-/* Guests chart */
-.guests-card { background:var(--white);border-radius:14px;padding:16px;box-shadow:var(--shadow); }
-.guests-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
-.guests-title { font-size:14px;font-weight:700; }
-.guests-tabs { display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:8px; }
-.gtab { padding:5px 10px;border:none;border-radius:6px;background:transparent;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s; }
-.gtab.active { background:var(--white);color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.1); }
-
-.bar-chart { display:flex;align-items:flex-end;gap:6px;height:80px;position:relative; }
-.bc-bar-wrap { flex:1;display:flex;flex-direction:column;align-items:center;gap:4px; }
-.bc-bar { width:100%;border-radius:5px 5px 0 0;background:var(--blue-light);transition:height .3s; }
-.bc-bar.peak { background:var(--blue); }
-.bc-label { font-size:10px;color:var(--muted);font-weight:600; }
-
-/* ═══════════════ FILES ═══════════════ */
-.search-bar {
-  background:var(--white); padding:10px 14px;
-  border-bottom:1px solid var(--border); flex-shrink:0;
-}
-.search-input-wrap {
-  background:var(--bg); border-radius:22px;
-  padding:9px 14px; display:flex; align-items:center; gap:8px;
-}
-.search-icon { font-size:15px; color:var(--muted); }
-.search-input { border:none;background:transparent;outline:none;font-size:14px;font-family:var(--font);color:var(--text);flex:1; }
-.search-input::placeholder { color:var(--muted); }
-
-.files-list { padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
-
-.file-item {
-  background:var(--white); border-radius:12px;
-  padding:12px 14px; display:flex; align-items:center; gap:12px;
-  box-shadow:var(--shadow); cursor:pointer; transition:background .15s;
-}
-.file-item:active { background:var(--blue-light); }
-.file-item-icon { font-size:28px; flex-shrink:0; }
-.file-item-info { flex:1; }
-.file-item-name { font-size:14px;font-weight:600; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px; }
-.file-item-meta { font-size:12px;color:var(--muted);margin-top:2px; }
-.file-item-size { font-size:12px;color:var(--muted);font-weight:600; }
-
-.empty-state { text-align:center;padding:60px 20px;color:var(--muted); }
-.empty-icon { font-size:48px;margin-bottom:12px; }
-.empty-text { font-size:14px;font-weight:600; }
-
-/* ═══════════════ SALARIES ═══════════════ */
-.dept-list { padding:12px 14px;display:flex;flex-direction:column;gap:8px; }
-.dept-item {
-  background:var(--white);border-radius:14px;padding:16px;
-  display:flex;align-items:center;gap:12px;
-  box-shadow:var(--shadow);cursor:pointer;transition:background .15s;
-}
-.dept-item:active { background:var(--blue-light); }
-.dept-ico { width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0; }
-.dept-info { flex:1; }
-.dept-name { font-size:15px;font-weight:700; }
-.dept-count { font-size:12px;color:var(--muted);margin-top:2px; }
-.dept-arrow { font-size:18px;color:var(--muted); }
-
-/* Employees list */
-#empScreen .header { cursor:pointer; }
-.emp-list { padding:12px 14px;display:flex;flex-direction:column;gap:8px; }
-.emp-card { background:var(--white);border-radius:14px;padding:14px;box-shadow:var(--shadow); }
-.emp-header { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
-.emp-avatar { width:40px;height:40px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
-.emp-name { font-size:14px;font-weight:700;flex:1; }
-.emp-status { font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px; }
-.emp-status.pending { background:var(--amber-bg);color:var(--amber); }
-.emp-status.paid { background:var(--green-bg);color:var(--green); }
-.emp-details { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px; }
-.emp-det { background:var(--bg);border-radius:10px;padding:10px; }
-.emp-det-label { font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px; }
-.emp-det-value { font-size:15px;font-weight:700; }
-.emp-actions { display:flex;gap:8px; }
-.btn-primary { flex:1;padding:10px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s; }
-.btn-primary:active { background:var(--blue-dark); transform:scale(.97); }
-.btn-secondary { flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s; }
-.btn-secondary:active { background:var(--bg); }
-.btn-success { flex:1;padding:10px;border:none;border-radius:10px;background:var(--green);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font); }
-
-/* ANIMATIONS */
-@keyframes pop { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-@keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
-.slide-in { animation:slideIn .25s ease; }
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sli{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.sli{animation:sli .2s ease}
 </style>
 </head>
 <body>
 
-<!-- ═══ CHAT ═══ -->
+<!-- CHAT -->
 <div class="screen active" id="chatScreen">
   <div class="header">
-    <div class="header-avatar">🤖</div>
-    <div class="header-info">
-      <div class="header-name">IMBA Аналитик</div>
-      <div class="header-sub">● онлайн</div>
-    </div>
-    <button class="icon-btn">⋯</button>
+    <div class="hav">🤖</div>
+    <div class="hinfo"><div class="hname">IMBA Аналитик</div><div class="hsub">● онлайн</div></div>
+    <button class="ibtn">⋯</button>
   </div>
-
   <div class="messages" id="messages">
-    <div class="date-chip">Сегодня</div>
-    <div class="msg-wrap in">
-      <div class="bubble">Привет! Я IMBA — ваш бизнес-аналитик 🤖<br>Задайте вопрос или прикрепите файл для анализа.</div>
-      <div class="msg-time">сейчас</div>
+    <div class="dchip">Сегодня</div>
+    <div class="mwrap in">
+      <div class="bubble">Привет! Я IMBA — ваш бизнес-аналитик 🤖<br>Задайте вопрос или прикрепите файл для анализа.<br><br>После подключения системы в разделе <b>Подключения</b> — отвечу по вашим реальным данным.</div>
+      <div class="mtime">сейчас</div>
     </div>
   </div>
-
-  <div class="file-strip" id="fileStrip">
-    <div class="fstrip-icon" id="fStripIcon">📄</div>
-    <div class="fstrip-info">
-      <div class="fstrip-name" id="fStripName">файл</div>
-      <div class="fstrip-size" id="fStripSize">—</div>
-    </div>
-    <button class="fstrip-rm" onclick="removeFile()">✕</button>
+  <div class="fstrip" id="fileStrip">
+    <div class="fsico" id="fsIco">📄</div>
+    <div class="fsinf"><div class="fsnm" id="fsNm">файл</div><div class="fssz" id="fsSz">—</div></div>
+    <button class="fsrm" onclick="removeFile()">✕</button>
   </div>
-
-  <div class="quick-bar" id="quickBar"></div>
-
-  <div class="input-row">
-    <button class="attach-btn" onclick="document.getElementById('fileInput').click()">📎</button>
+  <div class="qbar" id="quickBar"></div>
+  <div class="irow">
+    <button class="attbtn" onclick="document.getElementById('fileInput').click()">📎</button>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.pdf,.doc,.docx" onchange="handleFile(this)">
-    <div class="input-wrap">
-      <textarea class="msg-ta" id="msgInput" placeholder="Сообщение..." rows="1"
-        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-    </div>
-    <button class="send-btn" onclick="sendMsg()">
-      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-    </button>
+    <div class="iwrap"><textarea class="mta" id="msgInput" placeholder="Сообщение..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea></div>
+    <button class="sndbtn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
   </div>
-
-  <div class="bottom-nav" id="nav1">
-    <div class="nav-item active" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label" style="color:var(--blue)">Чат</div></div>
-    <div class="nav-item" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label">Аналитика</div></div>
-    <div class="nav-item" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label">Файлы</div></div>
-    <div class="nav-item" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label">Зарплаты</div></div>
+  <div class="bnav">
+    <div class="ni active" onclick="nav('chatScreen',this)"><div class="ni-icon">💬</div><div class="ni-lbl" style="color:var(--blue)">Чат</div></div>
+    <div class="ni" onclick="nav('analyticsScreen',this)"><div class="ni-icon">📊</div><div class="ni-lbl">Аналитика</div></div>
+    <div class="ni" onclick="nav('filesScreen',this)"><div class="ni-icon">📁</div><div class="ni-lbl">Файлы</div></div>
+    <div class="ni" onclick="nav('salariesScreen',this)"><div class="ni-icon">💳</div><div class="ni-lbl">Зарплаты</div></div>
+    <div class="ni" onclick="nav('connectionsScreen',this)"><div class="ni-icon">🔌</div><div class="ni-lbl">Подключения</div></div>
   </div>
 </div>
 
-<!-- ═══ ANALYTICS ═══ -->
+<!-- ANALYTICS -->
 <div class="screen" id="analyticsScreen">
   <div class="header">
-    <div class="header-avatar" style="background:#E7F0FD;color:var(--blue)">📊</div>
-    <div class="header-info">
-      <div class="header-name">Аналитика</div>
-      <div class="header-sub gray">Обновлено сейчас</div>
+    <div class="hav" style="background:#E7F0FD;color:var(--blue)">📊</div>
+    <div class="hinfo"><div class="hname">Аналитика</div><div class="hsub g">Ваш дашборд</div></div>
+  </div>
+  <div class="summary-bar">
+    <div class="summary-row">
+      <div class="sum-chip alert-up"><div class="sum-label">Выручка</div><div class="sum-val">+12%</div></div>
+      <div class="sum-chip alert-down"><div class="sum-label">Отмены</div><div class="sum-val">↑ 3 шт</div></div>
+      <div class="sum-chip alert-warn"><div class="sum-label">Ср. чек</div><div class="sum-val">−5%</div></div>
+      <div class="sum-chip"><div class="sum-label">AI-вывод</div><div class="sum-val">Пятница 🔥</div></div>
     </div>
   </div>
-
-  <div style="background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;">
-    <div class="period-tabs">
-      <button class="ptab active" onclick="setPeriod(this,'День')">День</button>
-      <button class="ptab" onclick="setPeriod(this,'Неделя')">Неделя</button>
-      <button class="ptab" onclick="setPeriod(this,'Месяц')">Месяц</button>
-      <button class="ptab" onclick="setPeriod(this,'Год')">Год</button>
-    </div>
+  <div class="ptabs">
+    <button class="ptab active" onclick="setPeriod(this,'вчера')">Вчера</button>
+    <button class="ptab" onclick="setPeriod(this,'неделя')">Неделя</button>
+    <button class="ptab" onclick="setPeriod(this,'месяц')">Месяц</button>
+    <button class="ptab" onclick="setPeriod(this,'год')">Год</button>
   </div>
-
-  <div class="body">
-    <div class="analytics-body">
-
-      <div class="tabs-grid">
-        <div class="tab-card">
-          <div class="tab-card-label">Списания</div>
-          <div class="tab-card-value">₽ —</div>
-          <div class="tab-card-sub">фудкост</div>
-        </div>
-        <div class="tab-card">
-          <div class="tab-card-label">Бани</div>
-          <div class="tab-card-value">— шт</div>
-          <div class="tab-card-sub">компаний</div>
-        </div>
-        <div class="tab-card">
-          <div class="tab-card-label">Отмены</div>
-          <div class="tab-card-value">— шт</div>
-          <div class="tab-card-sub">прчека</div>
-        </div>
-        <div class="tab-card">
-          <div class="tab-card-label">Ср. чек</div>
-          <div class="tab-card-value">₽ —</div>
-          <div class="tab-card-sub">на гостя</div>
-        </div>
-      </div>
-
-      <!-- Guests chart -->
-      <div class="guests-card">
-        <div class="guests-header">
-          <div class="guests-title">Количество гостей</div>
-          <div class="guests-tabs">
-            <button class="gtab active" onclick="setGuestTab(this,'вчера')">Вчера</button>
-            <button class="gtab" onclick="setGuestTab(this,'неделя')">Нед</button>
-            <button class="gtab" onclick="setGuestTab(this,'месяц')">Мес</button>
-          </div>
-        </div>
-        <div class="bar-chart" id="guestChart"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="bottom-nav">
-    <div class="nav-item" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label">Чат</div></div>
-    <div class="nav-item active" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label" style="color:var(--blue)">Аналитика</div></div>
-    <div class="nav-item" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label">Файлы</div></div>
-    <div class="nav-item" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label">Зарплаты</div></div>
+  <div class="body"><div class="wgrid" id="widgetGrid"></div></div>
+  <div class="bnav">
+    <div class="ni" onclick="nav('chatScreen',this)"><div class="ni-icon">💬</div><div class="ni-lbl">Чат</div></div>
+    <div class="ni active" onclick="nav('analyticsScreen',this)"><div class="ni-icon">📊</div><div class="ni-lbl" style="color:var(--blue)">Аналитика</div></div>
+    <div class="ni" onclick="nav('filesScreen',this)"><div class="ni-icon">📁</div><div class="ni-lbl">Файлы</div></div>
+    <div class="ni" onclick="nav('salariesScreen',this)"><div class="ni-icon">💳</div><div class="ni-lbl">Зарплаты</div></div>
+    <div class="ni" onclick="nav('connectionsScreen',this)"><div class="ni-icon">🔌</div><div class="ni-lbl">Подключения</div></div>
   </div>
 </div>
 
-<!-- ═══ FILES ═══ -->
+<!-- FILES -->
 <div class="screen" id="filesScreen">
   <div class="header">
-    <div class="header-avatar" style="background:#E7F0FD;color:var(--blue)">📁</div>
-    <div class="header-info">
-      <div class="header-name">Файлы</div>
-      <div class="header-sub gray" id="fileCount">0 файлов</div>
-    </div>
+    <div class="hav" style="background:#E7F0FD;color:var(--blue)">📁</div>
+    <div class="hinfo"><div class="hname">Файлы</div><div class="hsub g" id="fileCount">0 файлов</div></div>
   </div>
-
-  <div class="search-bar" style="flex-shrink:0;">
-    <div class="search-input-wrap">
-      <span class="search-icon">🔍</span>
-      <input class="search-input" placeholder="Поиск по названию..." id="searchInput" oninput="filterFiles()">
-    </div>
-  </div>
-
-  <div class="body">
-    <div class="files-list" id="filesList"></div>
-  </div>
-
-  <div class="bottom-nav">
-    <div class="nav-item" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label">Чат</div></div>
-    <div class="nav-item" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label">Аналитика</div></div>
-    <div class="nav-item active" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label" style="color:var(--blue)">Файлы</div></div>
-    <div class="nav-item" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label">Зарплаты</div></div>
+  <div class="sbar"><div class="siwrap"><span class="sico">🔍</span><input class="sinp" placeholder="Поиск по названию..." id="searchInput" oninput="filterFiles()"></div></div>
+  <div class="body"><div class="flist" id="filesList"></div></div>
+  <div class="bnav">
+    <div class="ni" onclick="nav('chatScreen',this)"><div class="ni-icon">💬</div><div class="ni-lbl">Чат</div></div>
+    <div class="ni" onclick="nav('analyticsScreen',this)"><div class="ni-icon">📊</div><div class="ni-lbl">Аналитика</div></div>
+    <div class="ni active" onclick="nav('filesScreen',this)"><div class="ni-icon">📁</div><div class="ni-lbl" style="color:var(--blue)">Файлы</div></div>
+    <div class="ni" onclick="nav('salariesScreen',this)"><div class="ni-icon">💳</div><div class="ni-lbl">Зарплаты</div></div>
+    <div class="ni" onclick="nav('connectionsScreen',this)"><div class="ni-icon">🔌</div><div class="ni-lbl">Подключения</div></div>
   </div>
 </div>
 
-<!-- ═══ SALARIES (departments) ═══ -->
+<!-- SALARIES -->
 <div class="screen" id="salariesScreen">
   <div class="header">
-    <div class="header-avatar" style="background:#E7F0FD;color:var(--blue)">💳</div>
-    <div class="header-info">
-      <div class="header-name">Зарплаты</div>
-      <div class="header-sub gray">Подразделения</div>
-    </div>
+    <div class="hav" style="background:#E7F0FD;color:var(--blue)">💳</div>
+    <div class="hinfo"><div class="hname">Зарплаты</div><div class="hsub g">Подразделения и сотрудники</div></div>
   </div>
-
-  <div class="body">
-    <div class="dept-list" id="deptList"></div>
-  </div>
-
-  <div class="bottom-nav">
-    <div class="nav-item" onclick="goTo('chatScreen',0)"><div class="nav-icon">💬</div><div class="nav-label">Чат</div></div>
-    <div class="nav-item" onclick="goTo('analyticsScreen',1)"><div class="nav-icon">📊</div><div class="nav-label">Аналитика</div></div>
-    <div class="nav-item" onclick="goTo('filesScreen',2)"><div class="nav-icon">📁</div><div class="nav-label">Файлы</div></div>
-    <div class="nav-item active" onclick="goTo('salariesScreen',3)"><div class="nav-icon">💳</div><div class="nav-label" style="color:var(--blue)">Зарплаты</div></div>
+  <div class="body"><div class="sal-body" id="salBody"></div></div>
+  <div class="bnav">
+    <div class="ni" onclick="nav('chatScreen',this)"><div class="ni-icon">💬</div><div class="ni-lbl">Чат</div></div>
+    <div class="ni" onclick="nav('analyticsScreen',this)"><div class="ni-icon">📊</div><div class="ni-lbl">Аналитика</div></div>
+    <div class="ni" onclick="nav('filesScreen',this)"><div class="ni-icon">📁</div><div class="ni-lbl">Файлы</div></div>
+    <div class="ni active" onclick="nav('salariesScreen',this)"><div class="ni-icon">💳</div><div class="ni-lbl" style="color:var(--blue)">Зарплаты</div></div>
+    <div class="ni" onclick="nav('connectionsScreen',this)"><div class="ni-icon">🔌</div><div class="ni-lbl">Подключения</div></div>
   </div>
 </div>
 
-<!-- ═══ EMPLOYEES ═══ -->
-<div class="screen" id="empScreen">
+<!-- CONNECTIONS -->
+<div class="screen" id="connectionsScreen">
   <div class="header">
-    <button class="icon-btn" onclick="goTo('salariesScreen',3)" style="background:transparent;">←</button>
-    <div class="header-info">
-      <div class="header-name" id="empDeptName">Сотрудники</div>
-      <div class="header-sub gray" id="empDeptCount">—</div>
-    </div>
+    <div class="hav" style="background:#E7F0FD;color:var(--blue)">🔌</div>
+    <div class="hinfo"><div class="hname">Подключения</div><div class="hsub g">API интеграции</div></div>
   </div>
   <div class="body">
-    <div class="emp-list" id="empList"></div>
+    <div class="conn-body">
+      <div class="conn-section">Ресторанные системы</div>
+      <div class="conn-card" onclick="openConn('iiko')">
+        <div class="conn-logo" style="background:#FF6B35;color:white;font-weight:900;font-size:18px;font-family:var(--font)">iiko</div>
+        <div class="conn-info"><div class="conn-nm">iiko</div><div class="conn-desc">Автоматизация ресторана</div></div>
+        <div class="conn-right"><div class="conn-badge off" id="cbadge-iiko">Не подключено</div><div class="conn-arr">›</div></div>
+      </div>
+      <div class="conn-card" onclick="openConn('rkeeper')">
+        <div class="conn-logo" style="background:#1A1A2E;color:#E94560;font-weight:900;font-size:13px;font-family:var(--font)">r_keeper</div>
+        <div class="conn-info"><div class="conn-nm">r_keeper</div><div class="conn-desc">Управление рестораном</div></div>
+        <div class="conn-right"><div class="conn-badge off" id="cbadge-rkeeper">Не подключено</div><div class="conn-arr">›</div></div>
+      </div>
+      <div class="conn-section" style="margin-top:4px">Бронирование</div>
+      <div class="conn-card" onclick="openConn('booking')">
+        <div class="conn-logo" style="background:#003580;color:white;font-weight:900;font-size:22px;font-family:Georgia,serif">B.</div>
+        <div class="conn-info"><div class="conn-nm">Booking.com</div><div class="conn-desc">Онлайн-бронирование</div></div>
+        <div class="conn-right"><div class="conn-badge off" id="cbadge-booking">Не подключено</div><div class="conn-arr">›</div></div>
+      </div>
+      <div class="conn-card" onclick="openConn('altegio')">
+        <div class="conn-logo" style="background:#6C5CE7;color:white;font-weight:800;font-size:13px;font-family:var(--font)">ALT</div>
+        <div class="conn-info"><div class="conn-nm">Altegio</div><div class="conn-desc">Онлайн-запись и CRM</div></div>
+        <div class="conn-right"><div class="conn-badge off" id="cbadge-altegio">Не подключено</div><div class="conn-arr">›</div></div>
+      </div>
+      <div class="conn-section" style="margin-top:4px">Учёт и финансы</div>
+      <div class="conn-card" onclick="openConn('1c')">
+        <div class="conn-logo" style="background:#FFF3E0;color:#FF6D00;font-weight:900;font-size:20px;font-family:var(--font)">1С</div>
+        <div class="conn-info"><div class="conn-nm">1С:Предприятие</div><div class="conn-desc">Учёт, бухгалтерия, зарплата</div></div>
+        <div class="conn-right"><div class="conn-badge off" id="cbadge-1c">Не подключено</div><div class="conn-arr">›</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="nav('chatScreen',this)"><div class="ni-icon">💬</div><div class="ni-lbl">Чат</div></div>
+    <div class="ni" onclick="nav('analyticsScreen',this)"><div class="ni-icon">📊</div><div class="ni-lbl">Аналитика</div></div>
+    <div class="ni" onclick="nav('filesScreen',this)"><div class="ni-icon">📁</div><div class="ni-lbl">Файлы</div></div>
+    <div class="ni" onclick="nav('salariesScreen',this)"><div class="ni-icon">💳</div><div class="ni-lbl">Зарплаты</div></div>
+    <div class="ni active" onclick="nav('connectionsScreen',this)"><div class="ni-icon">🔌</div><div class="ni-lbl" style="color:var(--blue)">Подключения</div></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
   </div>
 </div>
 
 <script>
-// ═══ STATE ═══
-const state = {
-  files: JSON.parse(localStorage.getItem('imba_files') || '[]'),
-  quickQuestions: JSON.parse(localStorage.getItem('imba_quick') || 'null'),
-  questionFreq: JSON.parse(localStorage.getItem('imba_freq') || '{}'),
-  salaries: JSON.parse(localStorage.getItem('imba_salaries') || 'null'),
+const WEBHOOK='https://solartstudio.app.n8n.cloud/webhook/01d27977-94fd-45c4-8042-813249948622/webhook';
+
+const S={
+  files:JSON.parse(localStorage.getItem('imba_files')||'[]'),
+  freq:JSON.parse(localStorage.getItem('imba_freq')||'{}'),
+  depts:JSON.parse(localStorage.getItem('imba_depts')||'null'),
+  conns:JSON.parse(localStorage.getItem('imba_conns')||'{}'),
+  widgets:JSON.parse(localStorage.getItem('imba_widgets')||'null'),
 };
 
-const DEFAULT_QUICK = ['Выручка за вчера','Топ процедур за вчера','Топ блюд за вчера'];
+if(!S.depts){
+  S.depts=[
+    {id:'d1',name:'Массажисты',icon:'💆',color:'#E7F0FD',emps:[
+      {name:'Анна Козлова',paid:false,accrued:14500},
+      {name:'Дмитрий Орлов',paid:false,accrued:12000},
+    ]},
+    {id:'d2',name:'Пармастера',icon:'🧖',color:'#E6F4EA',emps:[
+      {name:'Иван Громов',paid:false,accrued:11000},
+    ]},
+  ];
+  saveDepts();
+}
 
-const DEPARTMENTS = [
-  { id:'massage', name:'Массажисты', icon:'💆', color:'#E7F0FD', count:6 },
-  { id:'parmaster', name:'Пармастера', icon:'🧖', color:'#E6F4EA', count:4 },
-  { id:'cleaning', name:'Технички', icon:'🧹', color:'#FEF3E2', count:5 },
-  { id:'waiters', name:'Официанты', icon:'🍽️', color:'#F3E8FF', count:7 },
-];
+if(!S.widgets){
+  S.widgets=[
+    {id:'revenue',type:'kpi'},
+    {id:'avg_check',type:'kpi'},
+    {id:'clients',type:'kpi'},
+    {id:'chart_revenue',type:'chart'},
+  ];
+  saveWidgets();
+}
 
-const EMP_DATA = {
-  massage:  ['Анна Козлова','Дмитрий Орлов','Екатерина Лебедева','Марина Фролова','Сергей Тихонов','Ольга Белова'],
-  parmaster:['Иван Громов','Павел Зайцев','Николай Медведев','Алексей Рябов'],
-  cleaning: ['Тамара Ильина','Валентина Власова','Людмила Крылова','Зинаида Панова','Надежда Куликова'],
-  waiters:  ['Юлия Морозова','Виктория Соколова','Артём Кузнецов','Наталья Попова','Роман Воробьёв','Светлана Новикова','Андрей Голубев'],
+function saveDepts(){localStorage.setItem('imba_depts',JSON.stringify(S.depts))}
+function saveWidgets(){localStorage.setItem('imba_widgets',JSON.stringify(S.widgets))}
+function saveConns(){localStorage.setItem('imba_conns',JSON.stringify(S.conns))}
+
+const WCAT={
+  revenue:{lbl:'Выручка',type:'kpi',ico:'💰'},
+  avg_check:{lbl:'Средний чек',type:'kpi',ico:'🧾'},
+  clients:{lbl:'Кол-во клиентов',type:'kpi',ico:'👥'},
+  profit:{lbl:'Прибыль',type:'kpi',ico:'📈'},
+  expenses:{lbl:'Расходы',type:'kpi',ico:'📉'},
+  cancels:{lbl:'Отмены / возвраты',type:'kpi',ico:'❌'},
+  new_clients:{lbl:'Новые клиенты',type:'kpi',ico:'🆕'},
+  avg_emp_check:{lbl:'Ср. чек сотрудника',type:'kpi',ico:'👤'},
+  conversion:{lbl:'Конверсия клиентов',type:'kpi',ico:'🎯'},
+  worst_product:{lbl:'Убыточный товар',type:'kpi',ico:'⚠️'},
+  top_products:{lbl:'Топ товары',type:'top',ico:'📦'},
+  top_services:{lbl:'Топ услуги',type:'top',ico:'⭐'},
+  top_dishes:{lbl:'Топ блюда',type:'top',ico:'🍽️'},
+  top_staff:{lbl:'Топ сотрудники',type:'top',ico:'🏆'},
+  staff_load:{lbl:'Загруженность сотрудников',type:'top',ico:'⚡'},
+  chart_revenue:{lbl:'График выручки',type:'chart',ico:'📊'},
+  chart_check:{lbl:'График среднего чека',type:'chart',ico:'📊'},
+  chart_clients:{lbl:'График кол-ва клиентов',type:'chart',ico:'📊'},
+  chart_load:{lbl:'График загруженности',type:'chart',ico:'📊'},
 };
 
-const FILE_ICONS = {xlsx:'📊',xls:'📊',csv:'📋',pdf:'📕',doc:'📝',docx:'📝'};
-const GUEST_DATA = {
-  вчера:  [{l:'8',v:45},{l:'10',v:80},{l:'12',v:120},{l:'14',v:95},{l:'16',v:110},{l:'18',v:140},{l:'20',v:100}],
-  неделя: [{l:'Пн',v:320},{l:'Вт',v:280},{l:'Ср',v:190},{l:'Чт',v:350},{l:'Пт',v:420},{l:'Сб',v:380},{l:'Вс',v:300}],
-  месяц:  [{l:'1н',v:1200},{l:'2н',v:980},{l:'3н',v:1400},{l:'4н',v:1600}],
+const DEMO={
+  вчера:{
+    revenue:{val:'₽ 184 500',badge:'+12%',dir:'up'},avg_check:{val:'₽ 7 690',badge:'+3%',dir:'up'},
+    clients:{val:'24',badge:'−2 от нормы',dir:'flat'},profit:{val:'₽ 62 000',badge:'+8%',dir:'up'},
+    expenses:{val:'₽ 122 500',badge:'+4%',dir:'down'},cancels:{val:'3 шт',badge:'норма',dir:'flat'},
+    new_clients:{val:'7',badge:'+2',dir:'up'},avg_emp_check:{val:'₽ 6 150',badge:'−1%',dir:'flat'},
+    conversion:{val:'68%',badge:'+5%',dir:'up'},worst_product:{val:'Чай пуэр',badge:'−₽ 1 200',dir:'down'},
+    top_products:['Баня VIP — ₽ 8 400','Баня стандарт — ₽ 5 200','Купель — ₽ 3 800'],
+    top_services:['Массаж 60 мин — 18 шт','Пилинг — 12 шт','Обёртывание — 8 шт'],
+    top_dishes:['Форель — 14 шт','Стейк — 9 шт','Сёмга — 7 шт'],
+    top_staff:['Анна К. — ₽ 32 000','Дмитрий О. — ₽ 28 500','Марина Ф. — ₽ 24 000'],
+    staff_load:['Анна К. — 95%','Дмитрий О. — 88%','Екатерина Л. — 76%'],
+    chart_revenue:[40,65,90,75,100,85,70],chart_check:[70,72,68,80,75,82,78],
+    chart_clients:[6,8,10,7,9,11,8],chart_load:[60,75,85,80,95,90,70],
+    chart_labels:['8','10','12','14','16','18','20'],
+  },
+  неделя:{
+    revenue:{val:'₽ 1 240 000',badge:'+8%',dir:'up'},avg_check:{val:'₽ 7 380',badge:'−2%',dir:'down'},
+    clients:{val:'168',badge:'+14',dir:'up'},profit:{val:'₽ 410 000',badge:'+6%',dir:'up'},
+    expenses:{val:'₽ 830 000',badge:'+9%',dir:'down'},cancels:{val:'21 шт',badge:'норма',dir:'flat'},
+    new_clients:{val:'43',badge:'+8',dir:'up'},avg_emp_check:{val:'₽ 5 980',badge:'+1%',dir:'flat'},
+    conversion:{val:'71%',badge:'+3%',dir:'up'},worst_product:{val:'Иван-чай',badge:'−₽ 6 400',dir:'down'},
+    top_products:['Баня VIP — ₽ 52 000','Баня стандарт — ₽ 38 000','Купель — ₽ 24 000'],
+    top_services:['Массаж 60 мин — 112 шт','Пилинг — 74 шт','Обёртывание — 45 шт'],
+    top_dishes:['Форель — 89 шт','Стейк — 64 шт','Сёмга — 48 шт'],
+    top_staff:['Анна К. — ₽ 210 000','Дмитрий О. — ₽ 188 000','Марина Ф. — ₽ 162 000'],
+    staff_load:['Анна К. — 92%','Дмитрий О. — 85%','Екатерина Л. — 79%'],
+    chart_revenue:[60,75,50,85,100,90,70],chart_check:[68,72,70,75,80,78,74],
+    chart_clients:[20,25,18,28,35,30,22],chart_load:[70,80,65,85,95,88,72],
+    chart_labels:['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],
+  },
+  месяц:{
+    revenue:{val:'₽ 4 870 000',badge:'+15%',dir:'up'},avg_check:{val:'₽ 6 860',badge:'+2%',dir:'up'},
+    clients:{val:'710',badge:'+82',dir:'up'},profit:{val:'₽ 1 580 000',badge:'+11%',dir:'up'},
+    expenses:{val:'₽ 3 290 000',badge:'+18%',dir:'down'},cancels:{val:'89 шт',badge:'−12 шт',dir:'up'},
+    new_clients:{val:'186',badge:'+24',dir:'up'},avg_emp_check:{val:'₽ 6 100',badge:'+3%',dir:'up'},
+    conversion:{val:'69%',badge:'+1%',dir:'up'},worst_product:{val:'Чай улун',badge:'−₽ 28 000',dir:'down'},
+    top_products:['Баня VIP — ₽ 210 000','Баня стандарт — ₽ 154 000','Купель — ₽ 98 000'],
+    top_services:['Массаж 60 мин — 445 шт','Пилинг — 298 шт','Обёртывание — 182 шт'],
+    top_dishes:['Форель — 362 шт','Стейк — 248 шт','Сёмга — 194 шт'],
+    top_staff:['Анна К. — ₽ 840 000','Дмитрий О. — ₽ 720 000','Марина Ф. — ₽ 640 000'],
+    staff_load:['Анна К. — 94%','Дмитрий О. — 87%','Екатерина Л. — 81%'],
+    chart_revenue:[60,80,100,90],chart_check:[65,70,75,72],
+    chart_clients:[150,175,200,185],chart_load:[72,80,88,82],
+    chart_labels:['1 нед','2 нед','3 нед','4 нед'],
+  },
+  год:{
+    revenue:{val:'₽ 52 300 000',badge:'+22%',dir:'up'},avg_check:{val:'₽ 6 140',badge:'+5%',dir:'up'},
+    clients:{val:'8 520',badge:'+1 240',dir:'up'},profit:{val:'₽ 17 800 000',badge:'+19%',dir:'up'},
+    expenses:{val:'₽ 34 500 000',badge:'+24%',dir:'down'},cancels:{val:'1 040 шт',badge:'норма',dir:'flat'},
+    new_clients:{val:'2 180',badge:'+340',dir:'up'},avg_emp_check:{val:'₽ 5 820',badge:'+8%',dir:'up'},
+    conversion:{val:'66%',badge:'+4%',dir:'up'},worst_product:{val:'Травяной сбор',badge:'−₽ 340 000',dir:'down'},
+    top_products:['Баня VIP — ₽ 2 400 000','Баня стандарт — ₽ 1 760 000','Купель — ₽ 1 120 000'],
+    top_services:['Массаж 60 мин — 5 200 шт','Пилинг — 3 400 шт','Обёртывание — 2 100 шт'],
+    top_dishes:['Форель — 4 200 шт','Стейк — 2 900 шт','Сёмга — 2 200 шт'],
+    top_staff:['Анна К. — ₽ 9 800 000','Дмитрий О. — ₽ 8 400 000','Марина Ф. — ₽ 7 600 000'],
+    staff_load:['Анна К. — 93%','Дмитрий О. — 86%','Екатерина Л. — 80%'],
+    chart_revenue:[55,60,70,75,85,100,95,80,85,90,95,100],
+    chart_check:[60,62,65,68,70,72,74,72,74,76,78,80],
+    chart_clients:[600,650,700,720,750,800,780,700,720,740,780,800],
+    chart_load:[68,70,72,74,78,82,80,76,78,80,84,86],
+    chart_labels:['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'],
+  },
 };
 
-// ═══ NAVIGATION ═══
-function goTo(id, idx) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+let curPeriod='вчера';
+
+// NAV
+function nav(id,el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (id === 'filesScreen') renderFiles();
-  if (id === 'salariesScreen') renderDepts();
-  if (id === 'analyticsScreen') renderGuestChart('вчера');
+  document.querySelectorAll('.ni').forEach(n=>{n.classList.remove('active');n.querySelector('.ni-lbl').style.color='';});
+  if(el){el.classList.add('active');el.querySelector('.ni-lbl').style.color='var(--blue)';}
+  if(id==='filesScreen')renderFiles();
+  if(id==='salariesScreen')renderSalaries();
+  if(id==='analyticsScreen')renderWidgets();
+  if(id==='connectionsScreen')renderConns();
 }
 
-// ═══ QUICK QUESTIONS ═══
-function getQuickQuestions() {
-  const freq = state.questionFreq;
-  const sorted = Object.keys(freq).sort((a,b) => freq[b]-freq[a]);
-  if (sorted.length >= 3) {
-    const top3 = sorted.slice(0,3);
-    // Only replace if significantly more frequent
-    const totalAsked = Object.values(freq).reduce((a,b)=>a+b,0);
-    if (totalAsked >= 9) return top3;
-  }
-  return DEFAULT_QUICK;
+// CHAT
+let selFile=null,sending=false;
+const FICONS={xlsx:'📊',xls:'📊',csv:'📋',pdf:'📕',doc:'📝',docx:'📝'};
+const DQUICK=['Выручка сегодня','Топ услуг за неделю','Ср. чек за месяц'];
+
+function renderQuickBar(){
+  const freq=S.freq;const sorted=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]);
+  const total=Object.values(freq).reduce((a,b)=>a+b,0);
+  const qs=(sorted.length>=3&&total>=9)?sorted.slice(0,3):DQUICK;
+  document.getElementById('quickBar').innerHTML=qs.map(q=>`<button class="qbtn" onclick="sendQuick('${q}')">${q}</button>`).join('');
 }
 
-function renderQuickBar() {
-  const bar = document.getElementById('quickBar');
-  const questions = getQuickQuestions();
-  bar.innerHTML = questions.map(q =>
-    `<button class="quick-btn" onclick="sendQuick('${q}')">${q}</button>`
-  ).join('');
+function now(){return new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}
+
+function addMsg(text,type){
+  const msgs=document.getElementById('messages');
+  const w=document.createElement('div');w.className=`mwrap ${type}`;
+  const fmt=text.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+  w.innerHTML=`<div class="bubble">${fmt}</div><div class="mtime">${now()}</div>`;
+  msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight;
 }
 
-function trackQuestion(q) {
-  state.questionFreq[q] = (state.questionFreq[q] || 0) + 1;
-  localStorage.setItem('imba_freq', JSON.stringify(state.questionFreq));
-  renderQuickBar();
+function showTyping(){
+  const msgs=document.getElementById('messages');
+  const t=document.createElement('div');t.className='mwrap in';t.id='typing';
+  t.innerHTML=`<div class="bubble"><div class="tybbl"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
 }
+function hideTyping(){const t=document.getElementById('typing');if(t)t.remove()}
 
-// ═══ CHAT ═══
-let selectedFile = null;
-
-function now() {
-  return new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-}
-
-function addMessage(text, type) {
-  const msgs = document.getElementById('messages');
-  const wrap = document.createElement('div');
-  wrap.className = `msg-wrap ${type}`;
-  wrap.innerHTML = `<div class="bubble">${text}</div><div class="msg-time">${now()}</div>`;
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function showTyping() {
-  const msgs = document.getElementById('messages');
-  const t = document.createElement('div');
-  t.className = 'msg-wrap in'; t.id = 'typing';
-  t.innerHTML = `<div class="bubble"><div class="typing-bubble"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div></div>`;
-  msgs.appendChild(t);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function hideTyping() {
-  const t = document.getElementById('typing');
-  if (t) t.remove();
-}
-
-function sendMsg() {
-  const input = document.getElementById('msgInput');
-  const text = input.value.trim();
-  const hasFile = selectedFile !== null;
-  if (!text && !hasFile) return;
-
-  let displayText = text;
-  if (hasFile) {
-    displayText = (text ? text + '\n' : '') + `📎 ${selectedFile.name}`;
-    saveFile(selectedFile);
-    removeFile();
-  }
-
-  addMessage(displayText.replace(/\n/g,'<br>'), 'out');
-  if (text) trackQuestion(text);
-  input.value = ''; input.style.height = 'auto';
-
-  showTyping();
-  setTimeout(() => {
+async function callBot(text,file){
+  try{
+    let body;
+    if(file){
+      const fd=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file)});
+      body=JSON.stringify({message:text||'Проанализируй файл и дай краткий отчёт с ключевыми цифрами',fileName:file.name,fileType:file.type,fileData:fd,source:'webapp'});
+    }else{
+      body=JSON.stringify({message:text,source:'webapp'});
+    }
+    const res=await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
     hideTyping();
-    addMessage('Анализирую данные... Подключите iiko для получения актуальной информации.', 'in');
-  }, 1400);
+    const reply=data.reply||data.text||data.output||data.message||(Array.isArray(data)?data[0]?.text||data[0]?.output:null)||JSON.stringify(data);
+    addMsg(reply,'in');
+  }catch(e){hideTyping();addMsg('⚠️ Ошибка соединения. Попробуйте снова.','in');}
+  sending=false;
 }
 
-function sendQuick(q) {
-  document.getElementById('msgInput').value = q;
-  sendMsg();
+function sendMsg(){
+  if(sending)return;
+  const inp=document.getElementById('msgInput');
+  const text=inp.value.trim();const hasFile=selFile!==null;
+  if(!text&&!hasFile)return;
+  sending=true;
+  let disp=text;let fileToSend=null;
+  if(hasFile){fileToSend=selFile;disp=(text?text+'\n':'')+`📎 ${selFile.name}`;saveFile(selFile);removeFile();}
+  addMsg(disp.replace(/\n/g,'<br>'),'out');
+  if(text){S.freq[text]=(S.freq[text]||0)+1;localStorage.setItem('imba_freq',JSON.stringify(S.freq));renderQuickBar();}
+  inp.value='';inp.style.height='auto';
+  showTyping();callBot(text,fileToSend);
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
-}
-
-// ═══ FILES ═══
-function handleFile(input) {
-  if (!input.files.length) return;
-  const f = input.files[0];
-  selectedFile = f;
-  const ext = f.name.split('.').pop().toLowerCase();
-  document.getElementById('fStripIcon').textContent = FILE_ICONS[ext] || '📄';
-  document.getElementById('fStripName').textContent = f.name;
-  document.getElementById('fStripSize').textContent = (f.size/1024).toFixed(1) + ' KB';
+function sendQuick(q){document.getElementById('msgInput').value=q;sendMsg()}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px'}
+function handleFile(inp){
+  if(!inp.files.length)return;const f=inp.files[0];selFile=f;
+  const ext=f.name.split('.').pop().toLowerCase();
+  document.getElementById('fsIco').textContent=FICONS[ext]||'📄';
+  document.getElementById('fsNm').textContent=f.name;
+  document.getElementById('fsSz').textContent=(f.size/1024).toFixed(1)+' KB';
   document.getElementById('fileStrip').classList.add('show');
 }
+function removeFile(){selFile=null;document.getElementById('fileStrip').classList.remove('show');document.getElementById('fileInput').value=''}
 
-function removeFile() {
-  selectedFile = null;
-  document.getElementById('fileStrip').classList.remove('show');
-  document.getElementById('fileInput').value = '';
+// FILES
+function saveFile(f){
+  const ext=f.name.split('.').pop().toLowerCase();
+  S.files.unshift({name:f.name,size:(f.size/1024).toFixed(1)+' KB',ext,date:new Date().toLocaleDateString('ru',{day:'2-digit',month:'short',year:'numeric'}),icon:FICONS[ext]||'📄'});
+  localStorage.setItem('imba_files',JSON.stringify(S.files));
 }
-
-function saveFile(f) {
-  const ext = f.name.split('.').pop().toLowerCase();
-  const entry = {
-    name: f.name,
-    size: (f.size/1024).toFixed(1) + ' KB',
-    ext: ext,
-    date: new Date().toLocaleDateString('ru',{day:'2-digit',month:'short',year:'numeric'}),
-    icon: FILE_ICONS[ext] || '📄',
-  };
-  state.files.unshift(entry);
-  localStorage.setItem('imba_files', JSON.stringify(state.files));
+function renderFiles(){
+  const search=(document.getElementById('searchInput').value||'').toLowerCase();
+  const filtered=S.files.filter(f=>f.name.toLowerCase().includes(search));
+  document.getElementById('fileCount').textContent=S.files.length+' файлов';
+  document.getElementById('filesList').innerHTML=filtered.length?filtered.map((f,i)=>`
+    <div class="fitem sli" style="animation-delay:${i*.04}s">
+      <div class="fitem-ico">${f.icon}</div>
+      <div class="fitem-inf"><div class="fitem-nm">${f.name}</div><div class="fitem-mt">${f.date}</div></div>
+      <div class="fitem-sz">${f.size}</div>
+    </div>`).join(''):`<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">${search?'Ничего не найдено':'Файлы появятся здесь после отправки в чат'}</div></div>`;
 }
+function filterFiles(){renderFiles()}
 
-function renderFiles() {
-  const list = document.getElementById('filesList');
-  const search = (document.getElementById('searchInput').value || '').toLowerCase();
-  const filtered = state.files.filter(f => f.name.toLowerCase().includes(search));
-  document.getElementById('fileCount').textContent = state.files.length + ' файлов';
-
-  if (!filtered.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">${search ? 'Ничего не найдено' : 'Файлы появятся здесь после отправки в чат'}</div></div>`;
-    return;
-  }
-
-  list.innerHTML = filtered.map((f,i) => `
-    <div class="file-item slide-in" style="animation-delay:${i*0.04}s">
-      <div class="file-item-icon">${f.icon}</div>
-      <div class="file-item-info">
-        <div class="file-item-name">${f.name}</div>
-        <div class="file-item-meta">${f.date}</div>
-      </div>
-      <div class="file-item-size">${f.size}</div>
-    </div>
-  `).join('');
-}
-
-function filterFiles() { renderFiles(); }
-
-// ═══ SALARIES ═══
-function getSalaries() {
-  if (!state.salaries) {
-    const s = {};
-    DEPARTMENTS.forEach(d => {
-      s[d.id] = {};
-      EMP_DATA[d.id].forEach(name => {
-        s[d.id][name] = { paidDate: null, accrued: Math.floor(Math.random()*15000+8000) };
-      });
-    });
-    state.salaries = s;
-    localStorage.setItem('imba_salaries', JSON.stringify(s));
-  }
-  return state.salaries;
-}
-
-function renderDepts() {
-  const list = document.getElementById('deptList');
-  list.innerHTML = DEPARTMENTS.map((d,i) => `
-    <div class="dept-item slide-in" style="animation-delay:${i*0.06}s" onclick="openDept('${d.id}','${d.name}')">
-      <div class="dept-ico" style="background:${d.color}">${d.icon}</div>
-      <div class="dept-info">
-        <div class="dept-name">${d.name}</div>
-        <div class="dept-count">${EMP_DATA[d.id].length} сотрудников</div>
-      </div>
-      <div class="dept-arrow">›</div>
-    </div>
-  `).join('');
-}
-
-function openDept(id, name) {
-  document.getElementById('empDeptName').textContent = name;
-  document.getElementById('empDeptCount').textContent = EMP_DATA[id].length + ' сотрудников';
-  renderEmployees(id);
-  goTo('empScreen', 3);
-}
-
-function renderEmployees(deptId) {
-  const sal = getSalaries();
-  const emps = EMP_DATA[deptId];
-  const list = document.getElementById('empList');
-
-  list.innerHTML = emps.map((name, i) => {
-    const data = sal[deptId][name];
-    const isPaid = data.paidDate !== null;
-    const sinceText = isPaid
-      ? `С ${new Date(data.paidDate).toLocaleDateString('ru',{day:'2-digit',month:'short'})}`
-      : 'С начала периода';
-    const accrued = calcAccrued(data);
-
-    return `
-    <div class="emp-card slide-in" style="animation-delay:${i*0.05}s" id="emp_${deptId}_${i}">
-      <div class="emp-header">
-        <div class="emp-avatar">👤</div>
-        <div class="emp-name">${name}</div>
-        <div class="emp-status ${isPaid ? 'paid' : 'pending'}">${isPaid ? 'Выдана' : 'К выдаче'}</div>
-      </div>
-      <div class="emp-details">
-        <div class="emp-det">
-          <div class="emp-det-label">Начислено</div>
-          <div class="emp-det-value" style="color:var(--blue)">₽ ${accrued.toLocaleString()}</div>
+// SALARIES
+function renderSalaries(){
+  const body=document.getElementById('salBody');
+  let html=`<button class="sal-add-btn" onclick="openAddDept()">
+    <div class="sal-add-ico">➕</div><div class="sal-add-txt">Добавить подразделение</div>
+  </button>`;
+  S.depts.forEach((d,di)=>{
+    const paidCount=d.emps.filter(e=>e.paid).length;
+    html+=`<div class="dept-card sli" style="animation-delay:${di*.06}s" id="dc-${d.id}">
+      <div class="dept-header" 
+        onclick="toggleDept('${d.id}')"
+        ontouchstart="startHoldDept(event,'${d.id}',${di})"
+        ontouchend="cancelHold()"
+        ontouchcancel="cancelHold()"
+        onmousedown="startHoldDept(event,'${d.id}',${di})"
+        onmouseup="cancelHold()"
+        onmouseleave="cancelHold()">
+        <div class="dept-ico" style="background:${d.color||'#E7F0FD'}">${d.icon||'👥'}</div>
+        <div class="dept-info">
+          <div class="dept-nm">${d.name}</div>
+          <div class="dept-cnt">${d.emps.length} сотр. · ${paidCount} выдано</div>
         </div>
-        <div class="emp-det">
-          <div class="emp-det-label">Период</div>
-          <div class="emp-det-value" style="font-size:13px">${sinceText}</div>
+        <div class="dept-arrow" id="darr-${d.id}">›</div>
+      </div>
+      <div class="dept-emps" id="demps-${d.id}">
+        ${d.emps.map((e,ei)=>`
+          <div class="emp-row" id="er-${d.id}-${ei}"
+            ontouchstart="startHoldEmp(event,'${d.id}',${di},${ei})"
+            ontouchend="cancelHold()"
+            ontouchcancel="cancelHold()"
+            onmousedown="startHoldEmp(event,'${d.id}',${di},${ei})"
+            onmouseup="cancelHold()"
+            onmouseleave="cancelHold()">
+            <div class="emp-av">👤</div>
+            <div class="emp-nm">${e.name}</div>
+            <div class="emp-status ${e.paid?'paid':'pending'}">${e.paid?'Выдана':'К выдаче'}</div>
+            <div class="emp-actions" onclick="event.stopPropagation()">
+              <button class="emp-btn calc" onclick="recalcEmp(${di},${ei})">₽</button>
+              <button class="emp-btn pay" onclick="togglePay(${di},${ei})" style="${e.paid?'background:var(--muted)':''}">
+                ${e.paid?'↩':'✓'}
+              </button>
+            </div>
+          </div>`).join('')}
+        <div class="add-emp-row" onclick="openAddEmp(${di})">
+          <div class="add-emp-ico">➕</div>
+          <div class="add-emp-lbl">Добавить сотрудника</div>
         </div>
       </div>
-      <div class="emp-actions">
-        <button class="btn-secondary" onclick="calcSalary('${deptId}',${i},'${name}')">Рассчитать</button>
-        <button class="${isPaid ? 'btn-secondary' : 'btn-success'}" onclick="markPaid('${deptId}',${i},'${name}')">
-          ${isPaid ? '✓ Выдана' : 'Выдать'}
-        </button>
-      </div>
     </div>`;
-  }).join('');
+  });
+  html+=`<div class="hold-hint-sal">Удержите подразделение или сотрудника для удаления</div>`;
+  body.innerHTML=html;
 }
 
-function calcAccrued(data) {
-  const base = data.accrued;
-  if (!data.paidDate) return base;
-  const days = Math.floor((Date.now() - new Date(data.paidDate)) / 86400000);
-  return Math.floor((base / 30) * days);
+function toggleDept(id){
+  const emps=document.getElementById('demps-'+id);
+  const arr=document.getElementById('darr-'+id);
+  const open=emps.classList.contains('open');
+  emps.classList.toggle('open',!open);
+  arr.classList.toggle('open',!open);
 }
 
-function calcSalary(deptId, idx, name) {
-  const sal = getSalaries();
-  sal[deptId][name].accrued = Math.floor(Math.random()*20000+10000);
-  state.salaries = sal;
-  localStorage.setItem('imba_salaries', JSON.stringify(sal));
-  renderEmployees(deptId);
+function recalcEmp(di,ei){
+  S.depts[di].emps[ei].accrued=Math.floor(Math.random()*20000+8000);
+  const deptId=S.depts[di].id;
+  saveDepts();renderSalaries();
+  setTimeout(()=>{
+    document.getElementById('demps-'+deptId)?.classList.add('open');
+    document.getElementById('darr-'+deptId)?.classList.add('open');
+  },50);
 }
 
-function markPaid(deptId, idx, name) {
-  const sal = getSalaries();
-  const emp = sal[deptId][name];
-  if (emp.paidDate) {
-    // Already paid — reset
-    emp.paidDate = null;
-    emp.accrued = 0;
-  } else {
-    emp.paidDate = new Date().toISOString();
-    emp.accrued = calcAccrued(emp);
+function togglePay(di,ei){
+  S.depts[di].emps[ei].paid=!S.depts[di].emps[ei].paid;
+  const deptId=S.depts[di].id;
+  saveDepts();renderSalaries();
+  setTimeout(()=>{
+    document.getElementById('demps-'+deptId)?.classList.add('open');
+    document.getElementById('darr-'+deptId)?.classList.add('open');
+  },50);
+}
+
+// Long press for dept/emp
+let holdTimer=null;
+function startHoldDept(e,deptId,di){
+  e.stopPropagation();
+  const card=document.getElementById('dc-'+deptId);
+  if(card)card.classList.add('pressing');
+  holdTimer=setTimeout(()=>{
+    if(card)card.classList.remove('pressing');
+    confirmDelete(
+      `Удалить подразделение «${S.depts[di].name}»?`,
+      `Все ${S.depts[di].emps.length} сотрудников также будут удалены.`,
+      ()=>{S.depts.splice(di,1);saveDepts();renderSalaries();}
+    );
+  },600);
+}
+
+function startHoldEmp(e,deptId,di,ei){
+  e.stopPropagation();
+  const row=document.getElementById('er-'+deptId+'-'+ei);
+  if(row)row.classList.add('pressing');
+  holdTimer=setTimeout(()=>{
+    if(row)row.classList.remove('pressing');
+    const emp=S.depts[di].emps[ei];
+    confirmDelete(
+      `Удалить сотрудника «${emp.name}»?`,
+      'Это действие нельзя отменить.',
+      ()=>{
+        S.depts[di].emps.splice(ei,1);
+        saveDepts();renderSalaries();
+        setTimeout(()=>{
+          document.getElementById('demps-'+deptId)?.classList.add('open');
+          document.getElementById('darr-'+deptId)?.classList.add('open');
+        },50);
+      }
+    );
+  },600);
+}
+
+function cancelHold(){
+  if(holdTimer){clearTimeout(holdTimer);holdTimer=null;}
+  document.querySelectorAll('.pressing').forEach(el=>el.classList.remove('pressing'));
+}
+
+function openAddDept(){
+  showModal(`
+    <div class="modal-title">Новое подразделение</div>
+    <div class="modal-desc">Введите название подразделения</div>
+    <div class="mfield"><label class="mlbl">Название</label><input class="minput" id="m_deptName" placeholder="Например: Администраторы"></div>
+    <div class="mfield"><label class="mlbl">Иконка (эмодзи)</label><input class="minput" id="m_deptIcon" placeholder="👥" maxlength="2"></div>
+    <button class="mbtn" onclick="saveDept()">Добавить</button>
+    <button class="mcancel" onclick="closeOverlayNow()">Отмена</button>
+  `);
+}
+
+function saveDept(){
+  const name=document.getElementById('m_deptName').value.trim();
+  const icon=document.getElementById('m_deptIcon').value.trim()||'👥';
+  if(!name)return;
+  const colors=['#E7F0FD','#E6F4EA','#FEF3E2','#F3E8FF','#FCE8E6'];
+  S.depts.push({id:'d'+Date.now(),name,icon,color:colors[S.depts.length%colors.length],emps:[]});
+  saveDepts();closeOverlayNow();renderSalaries();
+}
+
+function openAddEmp(di){
+  showModal(`
+    <div class="modal-title">Новый сотрудник</div>
+    <div class="modal-desc">Добавление в «${S.depts[di].name}»</div>
+    <div class="mfield"><label class="mlbl">Имя и фамилия</label><input class="minput" id="m_empName" placeholder="Иван Иванов"></div>
+    <button class="mbtn" onclick="saveEmp(${di})">Добавить</button>
+    <button class="mcancel" onclick="closeOverlayNow()">Отмена</button>
+  `);
+}
+
+function saveEmp(di){
+  const name=document.getElementById('m_empName').value.trim();
+  if(!name)return;
+  S.depts[di].emps.push({name,paid:false,accrued:Math.floor(Math.random()*12000+8000)});
+  const deptId=S.depts[di].id;
+  saveDepts();closeOverlayNow();renderSalaries();
+  setTimeout(()=>{
+    document.getElementById('demps-'+deptId)?.classList.add('open');
+    document.getElementById('darr-'+deptId)?.classList.add('open');
+  },50);
+}
+
+// ANALYTICS
+function setPeriod(el,period){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');curPeriod=period;renderWidgets();
+}
+
+function renderWidgets(){
+  const grid=document.getElementById('widgetGrid');
+  const data=DEMO[curPeriod];
+  const kpiCount=S.widgets.filter(w=>['kpi','top'].includes(WCAT[w.id]?.type)).length;
+  const chartCount=S.widgets.filter(w=>WCAT[w.id]?.type==='chart').length;
+  const canAddKpi=kpiCount<8, canAddChart=chartCount<3;
+
+  let html='';
+  S.widgets.forEach((w,wi)=>{
+    const cat=WCAT[w.id];if(!cat)return;
+    const isLast=wi===S.widgets.length-1;
+
+    if(cat.type==='kpi'){
+      const d=data[w.id]||{val:'—',badge:'нет данных',dir:'flat'};
+      html+=`<div class="wcard" id="wc-${w.id}"
+        ontouchstart="startHoldWidget(event,'${w.id}')"
+        ontouchend="cancelHold()"
+        ontouchcancel="cancelHold()"
+        onmousedown="startHoldWidget(event,'${w.id}')"
+        onmouseup="cancelHold()"
+        onmouseleave="cancelHold()">
+        <div>
+          <div class="wcard-lbl">${cat.ico} ${cat.lbl}</div>
+          <div class="wcard-val">${d.val}</div>
+          <div class="wcard-badge ${d.dir}">${d.badge}</div>
+        </div>
+      </div>`;
+      if(isLast&&canAddKpi){
+        html+=`<div class="add-wcard" onclick="openWidgetPicker()">
+          <div class="add-wcard-icon">＋</div>
+          <div class="add-wcard-lbl">Виджет</div>
+        </div>`;
+      }
+    }else if(cat.type==='top'){
+      const items=(data[w.id]||[]).slice(0,3);
+      html+=`<div class="wcard" id="wc-${w.id}"
+        ontouchstart="startHoldWidget(event,'${w.id}')"
+        ontouchend="cancelHold()"
+        ontouchcancel="cancelHold()"
+        onmousedown="startHoldWidget(event,'${w.id}')"
+        onmouseup="cancelHold()"
+        onmouseleave="cancelHold()">
+        <div class="wcard-lbl">${cat.ico} ${cat.lbl}</div>
+        <div class="top-list">${items.map((it,i)=>`
+          <div class="top-item">
+            <div class="top-rank">${i+1}</div>
+            <div class="top-name">${it.split(' — ')[0]}</div>
+            <div class="top-val">${it.split(' — ')[1]||''}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+      if(isLast&&canAddKpi){
+        html+=`<div class="add-wcard" onclick="openWidgetPicker()">
+          <div class="add-wcard-icon">＋</div>
+          <div class="add-wcard-lbl">Виджет</div>
+        </div>`;
+      }
+    }else if(cat.type==='chart'){
+      const bars=data[w.id]||[];
+      const labels=data.chart_labels||[];
+      const max=Math.max(...bars)||1;
+      html+=`<div class="wcard full" id="wc-${w.id}"
+        ontouchstart="startHoldWidget(event,'${w.id}')"
+        ontouchend="cancelHold()"
+        ontouchcancel="cancelHold()"
+        onmousedown="startHoldWidget(event,'${w.id}')"
+        onmouseup="cancelHold()"
+        onmouseleave="cancelHold()">
+        <div class="wcard-lbl">${cat.ico} ${cat.lbl}</div>
+        <div class="mini-bars">
+          ${bars.map((v,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div class="mb ${v===max?'hi':''}" style="height:${Math.round(v/max*100)}%;width:100%"></div>
+            <div class="mb-lbl">${labels[i]||''}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+      if(isLast&&canAddChart){
+        html+=`<div class="add-wcard full" onclick="openWidgetPicker()">
+          <div class="add-wcard-icon">＋</div>
+          <div class="add-wcard-lbl">График</div>
+        </div>`;
+      }
+    }
+  });
+
+  // If no widgets at all
+  if(S.widgets.length===0){
+    html+=`<div class="add-wcard" onclick="openWidgetPicker()">
+      <div class="add-wcard-icon">＋</div><div class="add-wcard-lbl">Виджет</div>
+    </div>
+    <div class="add-wcard full" onclick="openWidgetPicker()">
+      <div class="add-wcard-icon">＋</div><div class="add-wcard-lbl">График</div>
+    </div>`;
   }
-  state.salaries = sal;
-  localStorage.setItem('imba_salaries', JSON.stringify(sal));
-  renderEmployees(deptId);
+
+  if(S.widgets.length>0){
+    html+=`<div class="hold-hint">Удержите виджет для удаления</div>`;
+  }
+
+  grid.innerHTML=html;
 }
 
-// ═══ ANALYTICS ═══
-function setPeriod(el, period) {
-  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+// Long press widget
+function startHoldWidget(e,wid){
+  const card=document.getElementById('wc-'+wid);
+  if(card)card.classList.add('pressing');
+  holdTimer=setTimeout(()=>{
+    if(card)card.classList.remove('pressing');
+    const cat=WCAT[wid];
+    confirmDelete(
+      `Удалить виджет «${cat?.lbl||wid}»?`,
+      'Вы всегда можете добавить его снова.',
+      ()=>{S.widgets=S.widgets.filter(w=>w.id!==wid);saveWidgets();renderWidgets();}
+    );
+  },600);
 }
 
-function setGuestTab(el, key) {
-  document.querySelectorAll('.gtab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderGuestChart(key);
-}
+function openWidgetPicker(){
+  const existing=S.widgets.map(w=>w.id);
+  const kpiCount=S.widgets.filter(w=>['kpi','top'].includes(WCAT[w.id]?.type)).length;
+  const chartCount=S.widgets.filter(w=>WCAT[w.id]?.type==='chart').length;
 
-function renderGuestChart(key) {
-  const data = GUEST_DATA[key];
-  const max = Math.max(...data.map(d=>d.v));
-  const chart = document.getElementById('guestChart');
-  chart.innerHTML = data.map((d,i) => {
-    const pct = Math.round((d.v/max)*100);
-    const isPeak = d.v === max;
-    return `<div class="bc-bar-wrap">
-      <div class="bc-bar ${isPeak?'peak':''}" style="height:${pct}%"></div>
-      <div class="bc-label">${d.l}</div>
+  let html=`<div class="modal-title">Добавить виджет</div>
+  <div class="modal-desc">Выберите что показать на дашборде</div>
+  <div class="wpick-grid">
+  <div class="wpick-section">Показатели (${kpiCount}/8)</div>`;
+
+  Object.entries(WCAT).filter(([,c])=>c.type==='kpi'||c.type==='top').forEach(([id,cat])=>{
+    const added=existing.includes(id);
+    const disabled=!added&&kpiCount>=8;
+    html+=`<div class="wpick-item ${added?'selected':''} ${disabled?'disabled':''}" onclick="${added||disabled?'':'addWidget(\''+id+'\')'}">
+      <div class="wpick-ico">${cat.ico}</div>
+      <div class="wpick-nm">${cat.lbl}</div>
+      <div class="wpick-type">${added?'✓ Добавлен':disabled?'Лимит':cat.type==='top'?'Список':'Число'}</div>
     </div>`;
-  }).join('');
+  });
+
+  html+=`<div class="wpick-section">Графики (${chartCount}/3)</div>`;
+  Object.entries(WCAT).filter(([,c])=>c.type==='chart').forEach(([id,cat])=>{
+    const added=existing.includes(id);
+    const disabled=!added&&chartCount>=3;
+    html+=`<div class="wpick-item ${added?'selected':''} ${disabled?'disabled':''}" onclick="${added||disabled?'':'addWidget(\''+id+'\')'}">
+      <div class="wpick-ico">${cat.ico}</div>
+      <div class="wpick-nm">${cat.lbl}</div>
+      <div class="wpick-type">${added?'✓ Добавлен':disabled?'Лимит':'График'}</div>
+    </div>`;
+  });
+
+  html+=`</div><button class="mcancel" onclick="closeOverlayNow()">Закрыть</button>`;
+  showModal(html);
 }
 
-// ═══ INIT ═══
-renderQuickBar();
-renderFiles();
-renderDepts();
-renderGuestChart('вчера');
+function addWidget(id){
+  const cat=WCAT[id];if(!cat)return;
+  S.widgets.push({id,type:cat.type});
+  saveWidgets();closeOverlayNow();renderWidgets();
+}
+
+// CONFIRM DELETE
+function confirmDelete(title,desc,onConfirm){
+  showModal(`
+    <div class="modal-title">🗑️ ${title}</div>
+    <div class="modal-desc">${desc}</div>
+    <div class="confirm-btns">
+      <button class="mbtn" style="background:var(--bg);color:var(--text)" onclick="closeOverlayNow()">Нет</button>
+      <button class="mbtn red" onclick="confirmYes()">Да, удалить</button>
+    </div>
+  `);
+  window._confirmCb=onConfirm;
+}
+function confirmYes(){if(window._confirmCb){window._confirmCb();window._confirmCb=null;}closeOverlayNow();}
+
+// CONNECTIONS
+const CONN_CFG={
+  iiko:{name:'iiko',fields:[{k:'url',lbl:'Адрес сервера',ph:'http://192.168.1.1:8080'},{k:'login',lbl:'Логин API',ph:'api_user'},{k:'pass',lbl:'Пароль',ph:'••••••••',t:'password'}]},
+  rkeeper:{name:'r_keeper',fields:[{k:'url',lbl:'Адрес сервера',ph:'http://server:8080'},{k:'token',lbl:'API Token',ph:'Ваш токен'}]},
+  booking:{name:'Booking.com',fields:[{k:'property_id',lbl:'Property ID',ph:'12345678'},{k:'api_key',lbl:'API Key',ph:'Ваш ключ'}]},
+  altegio:{name:'Altegio',fields:[{k:'company_id',lbl:'ID компании',ph:'12345'},{k:'token',lbl:'Токен доступа',ph:'Ваш токен'}]},
+  '1c':{name:'1С:Предприятие',fields:[{k:'url',lbl:'Адрес публикации',ph:'http://server/base'},{k:'login',lbl:'Пользователь',ph:'Администратор'},{k:'pass',lbl:'Пароль',ph:'••••••••',t:'password'}]},
+};
+let curConn=null;
+
+function renderConns(){
+  Object.keys(S.conns).forEach(k=>{
+    const b=document.getElementById('cbadge-'+k);
+    if(b){b.textContent='Подключено';b.className='conn-badge on';}
+  });
+}
+
+function openConn(key){
+  curConn=key;const cfg=CONN_CFG[key];const saved=S.conns[key]||{};
+  const isConn=!!S.conns[key];
+  let html=`<div class="modal-title">${cfg.name}</div><div class="modal-desc">Введите данные API для подключения</div>`;
+  cfg.fields.forEach(f=>{
+    html+=`<div class="mfield"><label class="mlbl">${f.lbl}</label>
+      <input class="minput" id="cf_${f.k}" type="${f.t||'text'}" placeholder="${f.ph}" value="${saved[f.k]||''}">
+    </div>`;
+  });
+  html+=`<button class="mbtn" style="${isConn?'background:var(--green)':''}" onclick="saveConn()">${isConn?'Обновить':'Подключить'}</button>
+  <button class="mcancel" onclick="closeOverlayNow()">Отмена</button>`;
+  showModal(html);
+}
+
+function saveConn(){
+  const cfg=CONN_CFG[curConn];const data={};let ok=true;
+  cfg.fields.forEach(f=>{
+    const v=document.getElementById('cf_'+f.k).value.trim();
+    if(!v){ok=false;document.getElementById('cf_'+f.k).style.borderColor='var(--red)';}
+    else data[f.k]=v;
+  });
+  if(!ok)return;
+  S.conns[curConn]=data;saveConns();
+  const b=document.getElementById('cbadge-'+curConn);
+  if(b){b.textContent='Подключено';b.className='conn-badge on';}
+  closeOverlayNow();
+  setTimeout(()=>{
+    addMsg(`✅ ${cfg.name} успешно подключён! Теперь я могу отвечать по данным вашей системы.`,'in');
+    nav('chatScreen',document.querySelector('.ni'));
+  },300);
+}
+
+// MODAL
+function showModal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('overlay').classList.add('show')}
+function closeOverlay(e){if(e.target===document.getElementById('overlay'))closeOverlayNow()}
+function closeOverlayNow(){document.getElementById('overlay').classList.remove('show')}
+
+// INIT
+renderQuickBar();renderFiles();renderSalaries();renderWidgets();renderConns();
 </script>
 </body>
 </html>
