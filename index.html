@@ -392,7 +392,7 @@ body{font-family:var(--font);background:var(--bg);height:100vh;overflow:hidden;c
 </div>
 
 <script>
-const WEBHOOK='https://solartstudio.app.n8n.cloud/webhook/01d27977-94fd-45c4-8042-813249948622/webhook';
+const WEBHOOK='https://solartstudio.app.n8n.cloud/webhook/72e77cb8-c9d0-426e-8468-cb51f84a6dc1';
 
 const S={
   files:JSON.parse(localStorage.getItem('imba_files')||'[]'),
@@ -662,7 +662,7 @@ function startHoldDept(e,deptId,di){
   holdTimer=setTimeout(()=>{
     if(card)card.classList.remove('pressing');
     confirmDelete('Удалить подразделение «'+S.depts[di].name+'»?','Все '+S.depts[di].emps.length+' сотрудников также будут удалены.',()=>{S.depts.splice(di,1);saveDepts();renderSalaries();});
-  },700);
+  },1500);
 }
 
 function startHoldEmp(e,deptId,di,ei){
@@ -676,7 +676,7 @@ function startHoldEmp(e,deptId,di,ei){
       S.depts[di].emps.splice(ei,1);saveDepts();renderSalaries();
       setTimeout(()=>{document.getElementById('demps-'+deptId)?.classList.add('open');document.getElementById('darr-'+deptId)?.classList.add('open');},50);
     });
-  },700);
+  },1500);
 }
 
 function cancelHold(){
@@ -716,43 +716,23 @@ function setPeriod(el,period){
 function renderWidgets(){
   const grid=document.getElementById('widgetGrid');
   const data=DEMO[curPeriod];
-  const totalCount=S.widgets.length;
-  const canAdd=totalCount<11; // 8 kpi/top + 3 chart
-
+  const kpiCount=S.widgets.filter(w=>['kpi','top'].includes(WCAT[w.id]?.type)).length;
+  const chartCount=S.widgets.filter(w=>WCAT[w.id]?.type==='chart').length;
+  const hold=(id)=>'ontouchstart="startHoldWidget(event,\''+id+'\')" ontouchend="cancelHold()" ontouchcancel="cancelHold()" onmousedown="startHoldWidget(event,\''+id+'\')" onmouseup="cancelHold()" onmouseleave="cancelHold()"';
   let html='';
-  S.widgets.forEach((w,wi)=>{
-    const cat=WCAT[w.id];if(!cat)return;
-    const isLast=wi===S.widgets.length-1;
-    const holdAttrs='ontouchstart="startHoldWidget(event,\''+w.id+'\')" ontouchend="cancelHold()" ontouchcancel="cancelHold()" onmousedown="startHoldWidget(event,\''+w.id+'\')" onmouseup="cancelHold()" onmouseleave="cancelHold()"';
-
-    if(cat.type==='kpi'){
-      const d=data[w.id]||{val:'—',badge:'нет данных',dir:'flat'};
-      html+='<div class="wcard" id="wc-'+w.id+'" '+holdAttrs+'><div><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="wcard-val">'+d.val+'</div><div class="wcard-badge '+d.dir+'">'+d.badge+'</div></div></div>';
-    }else if(cat.type==='top'){
-      const items=(data[w.id]||[]).slice(0,3);
-      html+='<div class="wcard" id="wc-'+w.id+'" '+holdAttrs+'><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="top-list">'+items.map((it,i)=>'<div class="top-item"><div class="top-rank">'+(i+1)+'</div><div class="top-name">'+it.split(' — ')[0]+'</div><div class="top-val">'+(it.split(' — ')[1]||'')+'</div></div>').join('')+'</div></div>';
-    }else if(cat.type==='chart'){
-      const bars=data[w.id]||[];
-      const labels=data.chart_labels||[];
-      const max=Math.max(...bars)||1;
-      html+='<div class="wcard chart-card" id="wc-'+w.id+'" '+holdAttrs+'><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="mini-bars">'+bars.map((v,i)=>'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div class="mb '+(v===max?'hi':'')+'" style="height:'+Math.round(v/max*100)+'%;width:100%"></div><div class="mb-lbl">'+(labels[i]||'')+'</div></div>').join('')+'</div></div>';
-    }
-
-    // Кнопка + после последнего виджета (если не chart и есть место)
-    if(isLast&&canAdd&&cat.type!=='chart'){
-      html+='<div class="add-wcard" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
-    }
-    if(isLast&&canAdd&&cat.type==='chart'){
-      html+='<div class="add-wcard chart-card" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
-    }
+  S.widgets.filter(w=>['kpi','top'].includes(WCAT[w.id]?.type)).forEach(w=>{
+    const cat=WCAT[w.id];
+    if(cat.type==='kpi'){const d=data[w.id]||{val:'—',badge:'нет данных',dir:'flat'};html+='<div class="wcard" id="wc-'+w.id+'" '+hold(w.id)+'><div><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="wcard-val">'+d.val+'</div><div class="wcard-badge '+d.dir+'">'+d.badge+'</div></div></div>';}
+    else{const items=(data[w.id]||[]).slice(0,3);html+='<div class="wcard" id="wc-'+w.id+'" '+hold(w.id)+'><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="top-list">'+items.map((it,i)=>'<div class="top-item"><div class="top-rank">'+(i+1)+'</div><div class="top-name">'+it.split(' — ')[0]+'</div><div class="top-val">'+(it.split(' — ')[1]||'')+'</div></div>').join('')+'</div></div>';}
   });
-
-  if(S.widgets.length===0){
-    html='<div class="add-wcard" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
-  }
-  if(S.widgets.length>0){
-    html+='<div class="hold-hint">Удержите виджет для удаления</div>';
-  }
+  if(kpiCount<8)html+='<div class="add-wcard" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
+  S.widgets.filter(w=>WCAT[w.id]?.type==='chart').forEach(w=>{
+    const cat=WCAT[w.id];const bars=data[w.id]||[];const labels=data.chart_labels||[];const max=Math.max(...bars)||1;
+    html+='<div class="wcard chart-card" id="wc-'+w.id+'" '+hold(w.id)+'><div class="wcard-lbl">'+cat.ico+' '+cat.lbl+'</div><div class="mini-bars">'+bars.map((v,i)=>'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div class="mb '+(v===max?'hi':'')+'" style="height:'+Math.round(v/max*100)+'%;width:100%"></div><div class="mb-lbl">'+(labels[i]||'')+'</div></div>').join('')+'</div></div>';
+  });
+  if(chartCount<3)html+='<div class="add-wcard chart-card" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
+  if(S.widgets.length===0)html='<div class="add-wcard" onclick="openWidgetPicker()"><div class="add-wcard-icon">＋</div></div>';
+  if(S.widgets.length>0)html+='<div class="hold-hint">Удержите виджет для удаления</div>';
   grid.innerHTML=html;
 }
 
@@ -763,7 +743,7 @@ function startHoldWidget(e,wid){
     if(card)card.classList.remove('pressing');
     const cat=WCAT[wid];
     confirmDelete('Удалить виджет «'+(cat?.lbl||wid)+'»?','Вы всегда можете добавить его снова.',()=>{S.widgets=S.widgets.filter(w=>w.id!==wid);saveWidgets();renderWidgets();});
-  },700);
+  },1500);
 }
 
 function openWidgetPicker(){
